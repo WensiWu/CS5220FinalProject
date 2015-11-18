@@ -1,4 +1,4 @@
-elements = 2; % number of elements
+elements = 1000; % number of elements
 nodes=elements+1; % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
