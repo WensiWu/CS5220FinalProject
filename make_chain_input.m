@@ -1,4 +1,4 @@
-elements = 2; % number of elements
+elements = 100000; % number of elements
 nodes=elements+1; % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
@@ -50,5 +50,5 @@ for i=1:nodes
 end
 %signals done with loading   
 fprintf(fileID,'0, 0, 0\n');
-
+fprintf(fileID,'2, 0.1, 0.1 200 0.001, 0.001');
 fclose(fileID);
