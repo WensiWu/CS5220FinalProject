@@ -23,15 +23,15 @@ end
 
 % assigns material props to elements
 for i=1:elements
-    area = randi([1,4]); 
-    modulus = 20000+10000*rand;
+    area = 1; 
+    modulus = 29000;
     fprintf(fileID,'%f, %f\n', area, modulus); %% assign material props : area and modulus
 end
 
 % assigns load to even numbered node
 for i=1:nodes
     if rem(i,2)==0
-         load = 5+20*rand;
+         load = 10;
          fprintf(fileID,'%d, %d, %f\n', i, 2, -load);
     end
 end
