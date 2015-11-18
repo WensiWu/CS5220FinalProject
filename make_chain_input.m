@@ -1,4 +1,4 @@
-elements = 1000; % number of elements
+elements = 2; % number of elements
 nodes=elements+1; % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
@@ -31,21 +31,21 @@ for i=0:nodes-1
     xcoor=i*xoffset;
     ycoor=mod(i,2)*yoffset;
     zcoor=0;
-    fprintf(fileID,'%f, %f, %f\n', xcoor, ycoor, zcoor); %% coordinate of node i
+    fprintf(fileID,'%d, %d, %d\n', xcoor, ycoor, zcoor); %% coordinate of node i
 end
 
 % assigns material props to elements
 for i=1:elements
     area = 1; 
     modulus = 29000;
-    fprintf(fileID,'%f, %f\n', area, modulus); %% assign material props : area and modulus
+    fprintf(fileID,'%d, %d\n', area, modulus); %% assign material props : area and modulus
 end
 
 % assigns load to even numbered node
 for i=1:nodes
     if mod(i,2)==0
          load = 10;
-         fprintf(fileID,'%d, %d, %f\n', i, 2, -load);
+         fprintf(fileID,'%d, %d, %d\n', i, 2, -load);
     end
 end
 %signals done with loading   
