@@ -1,4 +1,4 @@
-bottom_layer_size=100; % number of nodes on bottom layer
+bottom_layer_size=40; % number of nodes on bottom layer
 filename=strcat(int2str(bottom_layer_size),'pyramid.txt');
 fileID=fopen(filename,'w');
 
