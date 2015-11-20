@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define INPUT "model_def.txt" // Map of path to input file
+#define INPUT "4pyramid.txt" // Map of path to input file
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
