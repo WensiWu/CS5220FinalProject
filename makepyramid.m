@@ -1,4 +1,4 @@
-bottom_layer_size=10; % number of nodes on bottom layer
+bottom_layer_size=100; % number of nodes on bottom layer
 filename=strcat(int2str(bottom_layer_size),'pyramid.txt');
 fileID=fopen(filename,'w');
 
@@ -52,12 +52,23 @@ for i=1:totalelements
    fprintf(fileID,'%d, %d\n',area,modulus);
 end
 
-
-for i=bottom_layer_size+1:totalnodes
+%load
+left=1;
+right=bottom_layer_size;
+current_size=bottom_layer_size;
+for i=1:bottom_layer_size-2
+    left=left+current_size;
+    right=right+current_size-1;
     direction=2;
     load=-10;
-    fprintf(fileID,'%d, %d, %d\n',i,direction,load);
+    fprintf(fileID,'%d, %d, %d\n',left,direction,load);
+    fprintf(fileID,'%d, %d, %d\n',right,direction,load);
+
+    current_size=current_size-1;
 end
+fprintf(fileID,'%d, %d, %d\n',totalnodes,direction,load);
+
+
 
 fprintf(fileID,'0, 0, 0\n');
 fprintf(fileID,'2, 0.1, 0.1 \n200 \n0.001, 0.001');
