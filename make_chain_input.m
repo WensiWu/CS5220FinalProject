@@ -1,25 +1,58 @@
-elements = 100; % number of elements
-nodes=elements+1; % number of nodes
+elements = 100; number of elements
+nodes=(elements+1)/2+1;  % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
 
 
 fprintf(fileID,'%d, %d\n', elements, nodes); %% write #element, #node
 
-for i=1:elements
+%the diagonal truss members
+diagonal= (elements+1)/2;
+
+for i=1:diagonal
     fprintf(fileID,'%d, %d\n', i, i+1); %% node 1&2 of element
 end
 
-%joint constraints
-for i=1:nodes 
-    if mod(i,2)==1
-        for j=1:3
-            fprintf(fileID,'%d, %d\n', i, j);
-        end
-    else 
-        fprintf(fileID,'%d, %d\n', i, 3);
-    end
+%truss members at the bottom
+bottom= (elements-diagonal+1)/2;
+for i=1:bottom
+   fprintf(fileID, '%d, %d\n', i, i+2);
 end
+
+%truss members at the top
+top= bottom-1;
+for i=1:top
+   fprintf(fileID, '%d, %d\n', i+1, i+3);
+end
+
+%joint constraints
+%for i=1:nodes 
+%    if mod(i,2)==1
+%        for j=1:3
+%            fprintf(fileID,'%d, %d\n', i, j);
+%        end
+%    else 
+%        fprintf(fileID,'%d, %d\n', i, 3);
+%    end
+%end
+
+for i=1:nodes
+   if i==1
+	for j=1:3
+	   fprintf(fileID, '%d, %d\n', i, j);
+	end
+   end
+   if mod(i,2)==1
+	fprintf(fileID, '%d, %d\n', i, 2);
+   end
+   if i==nodes
+	for j=1:2:3
+	  fprintf(fileID, '%d, %d\n', i, j );
+	end
+   end
+end 
+
+
 
 %done with constraint statement:
 fprintf(fileID,'0, 0\n');
