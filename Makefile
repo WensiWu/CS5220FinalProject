@@ -13,14 +13,14 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-base clean realclean
+.PHONY: exe clean realclean
 
 
 # === Executables
 
 exe: 3D_geom_nonlin_truss.x
 
-3D_geom_nonlin_truss.x: 3D_geom_nonlin_truss.o
+3D_geom_nonlin_truss.x: 3D_geom_nonlin_truss.o 
 	$(CC) $(OMP_CFLAGS) $^ -o $@
 
 3D_geom_nonlin_truss.o: 3D_geom_nonlin_truss.c

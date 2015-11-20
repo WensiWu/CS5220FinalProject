@@ -15,13 +15,13 @@ end
 
 %truss members at the bottom
 bottom= (elements-diagonal+1)/2;
-for i=1:bottom
+for i=1:2:bottom
    fprintf(fileID, '%d, %d\n', i, i+2);
 end
 
 %truss members at the top
 top= bottom-1;
-for i=1:top
+for i=1:2:top
    fprintf(fileID, '%d, %d\n', i+1, i+3);
 end
 
