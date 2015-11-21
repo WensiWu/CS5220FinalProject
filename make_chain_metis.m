@@ -1,7 +1,7 @@
 elements = 999; %number of elements: elements should be odd for a truss bridge
 nodes=(elements+1)/2+1;  % number of nodes
 weight= 1;
-filename = strcat(int2str(elements),'elementschain.txt');
+filename = strcat(int2str(elements),'elementschainMetis.txt');
 fileID=fopen(filename,'w');
 
 
