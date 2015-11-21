@@ -20,13 +20,13 @@ include Makefile.in.$(PLATFORM)
 
 exe: 3D_geom_nonlin_truss.x
 
-exe: 3D_geom_nonlin_truss_vec.x
+exe-vec: 3D_geom_nonlin_truss_vec.x
 
 3D_geom_nonlin_truss.x: 3D_geom_nonlin_truss.o 
 	$(CC) $(OMP_CFLAGS) $^ -o $@
 
-3D_geom_nonlin_truss_vec.x: 3d_geom_nonlin_truss_vec.o
-	$(CC) $(OMP_CFLAGS) $^-o $@
+3D_geom_nonlin_truss_vec.x: 3D_geom_nonlin_truss_vec.o
+	$(CC) $(OMP_CFLAGS) $^ -o $@
 
 3D_geom_nonlin_truss.o: 3D_geom_nonlin_truss.c
 	$(CC) -c $(OMP_CFLAGS) $<
