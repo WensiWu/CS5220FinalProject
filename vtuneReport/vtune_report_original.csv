@@ -1,0 +1,8 @@
+Function,Module,CPU Time,CPU Time:Idle,CPU Time:Poor,CPU Time:Ok,CPU Time:Ideal,CPU Time:Over,Wait Time,Spin Time,Overhead Time,Thread Oversubscription
+solve,3D_geom_nonlin_truss.x,2.075213,0.0,2.075213,0.0,0.0,0.0,,0.0,0.0,0.0
+fprintf,libc-2.12.so,0.013737,0.013737,0.0,0.0,0.0,0.0,0.000206,0.0,0.0,0.0
+__intel_memset,3D_geom_nonlin_truss.x,0.010005,0.0,0.010005,0.0,0.0,0.0,,0.0,0.0,0.0
+getchar,3D_geom_nonlin_truss.x,0.010000,0.010000,0.0,0.0,0.0,0.0,10.195244,0.0,0.0,0.0
+main,3D_geom_nonlin_truss.x,0.010000,0.0,0.010000,0.0,0.0,0.0,0.007844,0.0,0.0,0.0
+_IO_puts,libc-2.12.so,,,,,,,0.000030,,,
+__isoc99_fscanf,libc-2.12.so,,,,,,,0.000071,,,
