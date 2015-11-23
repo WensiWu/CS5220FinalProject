@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
+#include <omp.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "999elementschain.txt"
+#define INPUT "2999elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -79,7 +79,7 @@ void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
     double *pelong, double *peleng, double *pdeflen, int *pminc, int *pjcode);
 
 int main (void)
-{
+{   double t0=omp_get_wtime();
     // Open I/O for business!
     ifp = fopen(INPUT, "r"); // Open input file for reading
     ofp = fopen(OUTPUT, "w"); // Open output file for writing
@@ -154,7 +154,7 @@ int main (void)
 
     // Pass control to codes function
     codes (&mcode[0][0], &jcode[0][0], &minc[0][0]);
-
+    printf("number of equations: %d\n", neq);
     // Define secondary variables which DO depend upon neq
     double q[neq];						// Reference load vector
     double qtot[neq];					// Total load vector, i.e. qi * q[neq]
@@ -167,9 +167,9 @@ int main (void)
 
     // Pass control to skylin function
     skylin (kht, maxa, &mcode[0][0], &lss);
-
+    printf("size of stiffness matrix as a 1D element: %d\n",lss);
     // Define secondary variable which depends upon lss (the size of the stiffness marix as a 1D array)
-    double ss[lss];						// Tangent stiffness matrix stored as an array
+    double *ss= (double *)malloc(lss*sizeof(double));						// Tangent stiffness matrix stored as an array
 
     // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
@@ -360,7 +360,9 @@ int main (void)
     } else {
         printf("Output file is closed\n");
     }
-    getchar();
+    getchar(); 
+    double t1 = omp_get_wtime();
+    printf("Total time spent (IO+computation): %g\n",t1-t0);
     return 0;
 }
 
