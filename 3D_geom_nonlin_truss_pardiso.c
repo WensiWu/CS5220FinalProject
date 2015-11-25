@@ -69,14 +69,14 @@ void stiff  (double *parea, double *pemod, double *peleng, double *pc1,
 void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
     double *pc3, double *pelong, double *peleng, int *pmcode);
 
-//initialize pardiso solver
-pardisoinit(void *pt[64], int *mtype, int *solver, int iparm[64], double dparm[64], int *error);
+//initialize pardiso solver I dont this this is needed, mkl is imported
+//pardisoinit(void *pt[64], int *mtype, int *solver, int iparm[64], double dparm[64], int *error);
 
 //solve sparse matrix
-pardiso(void *pt[64], int *maxfct, int *mnum, int *mtype, int *phase, int neq, double *a[],
+/*pardiso(void *pt[64], int *maxfct, int *mnum, int *mtype, int *phase, int neq, double *a[],
 	int *ia[], int *ja[], int perm[], int *nrhs, int iparm[64], int *msglvl, double *pf,
 	double x[], int *error, double dparm[64]); 
-
+*/
 // Solver functions:
 // Miscellaneous functions:
 void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
@@ -157,24 +157,45 @@ int main (void)
     double qtot[neq];					// Total load vector, i.e. qi * q[neq]
     double d[neq], dd[neq];				// Total and incremental nodal displacement vectors   	
    
-    int mytype;
+    int mytype = 1 ; // tells pardiso the matrix is real and symmetric
     int solver;
     int iparm[64];
     double dparm[64];
     int error;
-    void pt;
+    void *pt[64]; // pointer for pardiso init
     int maxfct;
     int mnum;
-    int phase;
+    int phase=23; // tells pardiso to do numerical factorization + solve, might want 22 and then 33 for iterative refinement?
     double a[];
     int ia[];
     int ja[];
     int perm[];
-    int nrhs	
+    int nrhs = 1; // tells pardiso: number of right hand side  =1
     int *msglvl;
     double b[];
     double x[];
-      
+    
+	// setup pardiso parameters
+	//
+    for (i = 0; i < 64; i++) {
+    	iparm[i] = 0;
+    }
+    maxfct = 1; /* Maximum number of numerical factorizations. */
+    mnum = 1; /* Which factorization to use. */
+    msglvl = 1; /* Print statistical information in file */
+    error = 0; /* Initialize error flag */
+    /* -------------------------------------------------------------------- */
+    /* .. Initialize the internal solver memory pointer. This is only */
+    /* necessary for the FIRST call of the PARDISO solver. */
+    /* -------------------------------------------------------------------- */
+    for (i = 0; i < 64; i++) {
+        pt[i] = 0;
+    }
+
+    //initializes pardiso parameter should be needed only once
+    pardisoinit(mtype, pt, iparm);
+
+
     // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
 
@@ -229,12 +250,10 @@ int main (void)
        // Pass control to stiff function
        stiff (area, emod, eleng, c1, c2, c3, elong, &mcode[0][0], ia, ja, a);
 
-	//Pass control to initialize the solver
-	pardisoinit(pt, &mtype, &solver, iparm, dparm, &error);
- 
+
 	//Pass control to solver matrix system
-       pardiso(pt, &maxfct, &mnum,  &mtype, &phase, neq, a, ia, ja,
-		perm, &nrhs, iparm, &msglvl, f, x, &error, dparm );
+       pardiso(pt, &maxfct, &mnum,  &mtype, &phase, &neq, a, ia, ja,
+		&perm, &nrhs, iparm, &msglvl, f, x, &error);
             // Pass control to forces function
             updatc (&x[0][0], dd, c1, c2, c3, elong, eleng, deflen, &minc[0][0],
                 &jcode[0][0]);
