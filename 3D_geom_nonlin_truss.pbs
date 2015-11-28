@@ -7,4 +7,4 @@
 
 module load cs5220
 cd $PBS_O_WORKDIR
-./3D_geom_nonlin_truss.x -n 2000
+./3D_geom_nonlin_truss.x

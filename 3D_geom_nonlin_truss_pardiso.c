@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
+#include <mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-<<<<<<< HEAD
-#define INPUT "7elementschain.txt"
-=======
 #define INPUT "2999elementschain.txt"
->>>>>>> 354b09040b174e55214c322b3b97a9fdcf3e287b
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -65,19 +62,22 @@ void prop (double *px, double *parea, double *pemod, double *peleng, double *pc1
 int load (double *pq, int *pjcode);
 
 // Stiffness functions:
-void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss);
-void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss);
+void stiff  (double *parea, double *pemod, double *peleng, double *pc1,
+    double *pc2, double *pc3, double *pelong, int *pmcode, int *ia, int *ja, double *a);
 
 // Internal force vector function:
 void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
     double *pc3, double *pelong, double *peleng, int *pmcode);
 
-// Solver functions:
-int solve (double *pss, double *pr, double *pdd, int *pmaxa);
-void test (double *pf, double *pfp, double *pqtot, double *pdd, double *pfpi,
-    double *pintener1, int *pinconv, int *pneq, double *ptolfor, double *ptolener);
+//initialize pardiso solver I dont this this is needed, mkl is imported
+//pardisoinit(void *pt[64], int *mtype, int *solver, int iparm[64], double dparm[64], int *error);
 
+//solve sparse matrix
+/*pardiso(void *pt[64], int *maxfct, int *mnum, int *mtype, int *phase, int neq, double *a[],
+	int *ia[], int *ja[], int perm[], int *nrhs, int iparm[64], int *msglvl, double *pf,
+	double x[], int *error, double dparm[64]); 
+*/
+// Solver functions:
 // Miscellaneous functions:
 void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
     double *pelong, double *peleng, double *pdeflen, int *pminc, int *pjcode);
@@ -122,15 +122,8 @@ int main (void)
 	double eleng[ne], deflen[ne], elong[ne];	// Element length, deformed length, and elongation
     double area[ne];							// Element cross-sectional properties
     double c1[ne], c2[ne], c3[ne];				// Direction cosines
-    double qi, dqi;								// Current and incremental load proportionality factor
-    double qimax;								// Maximum allowable load proportionality factor
-    
-	// Convergence parameters
-    double tolfor, tolener;						// Tolerances on force and energy
-    double intener1;							// Internal energy from first equilibrium iteration
-    int inconv;									// Flag for convergence test
-    int itecnt, itemax;							// Iteration counter and max number of iterations
-    int errchk;									// Error check variable on user defined functions
+   
+   int errchk;									// Error check variable on user defined functions
     int i;										// Counter variable
 
     // Pass control to struc function
@@ -162,18 +155,46 @@ int main (void)
     // Define secondary variables which DO depend upon neq
     double q[neq];						// Reference load vector
     double qtot[neq];					// Total load vector, i.e. qi * q[neq]
-    double d[neq], dd[neq];				// Total and incremental nodal displacement vectors
-    double f[neq];						// Internal force vector
-    double fp[neq];						// Internal force vector from previous load increment
-    double fpi[neq];					// Internal force vector from previous iteration
-    double r[neq];						// Residual force vector, i.e. qtot - f
-    int maxa[neq + 1], kht[neq], lss;	// Skyline storage parameters for stiffness matrix
+    double d[neq], dd[neq];				// Total and incremental nodal displacement vectors   	
+   
+    int mytype = 2 ; // tells pardiso the matrix is real and symmetric and positive definite
+    int solver;
+    int iparm[64];
+    double dparm[64];
+    int error;
+    void *pt[64]; // pointer for pardiso init
+    int maxfct;
+    int mnum;
+    int phase=23; // tells pardiso to do numerical factorization + solve, might want 22 and then 33 for iterative refinement?
+    double a[9*ne];
+    int ia[ne+1]; //size is equal to the number of entries in the diagonal of the matrix
+    int ja[9*ne]; 
+    int perm[];
+    int nrhs = 1; // tells pardiso: number of right hand side  =1
+    int *msglvl;
+   // double b[]; same as the force vector. 
+    double disp[ne];
+    
+	// setup pardiso parameters
+	//
+    for (i = 0; i < 64; i++) {
+    	iparm[i] = 0;
+    }
+    maxfct = 1; /* Maximum number of numerical factorizations. */
+    mnum = 1; /* Which factorization to use. */
+    msglvl = 1; /* Print statistical information in file */
+    error = 0; /* Initialize error flag */
+    /* -------------------------------------------------------------------- */
+    /* .. Initialize the internal solver memory pointer. This is only */
+    /* necessary for the FIRST call of the PARDISO solver. */
+    /* -------------------------------------------------------------------- */
+    for (i = 0; i < 64; i++) {
+        pt[i] = 0;
+    }
 
-    // Pass control to skylin function
-    skylin (kht, maxa, &mcode[0][0], &lss);
-    printf("size of stiffness matrix as a 1D element: %d\n",lss);
-    // Define secondary variable which depends upon lss (the size of the stiffness marix as a 1D array)
-    double *ss= (double *)malloc(lss*sizeof(double));						// Tangent stiffness matrix stored as an array
+    //initializes pardiso parameter should be needed only once
+    pardisoinit(mtype, pt, iparm);
+
 
     // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
@@ -224,136 +245,20 @@ int main (void)
         elong[i] = 0;
     }
 
-    /* Begin load incrementation; load will be incremented until load proportionality
-       factor is equal to user specified maximum */
-    do {
-        /* Compute the generalized joint total load vector, store generalized internal
-           force vector from previous configuration and re-initialize */
-        for (i = 0; i <= neq - 1; ++i) {
-            qtot[i] = q[i] * qi;
-            fp[i] = f[i];
-            f[i] = 0;
-        }
+       forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
 
-        // Pass control to forces function
-        forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
+       // Pass control to stiff function
+       stiff (area, emod, eleng, c1, c2, c3, elong, &mcode[0][0], ia, ja, a);
 
-        itecnt = 1;  // Re-initialize iteration counter at the start of each increment
 
-        /* Start of each equilibrium iteration within load increment; iterations will
-           continue until convergence is reached or iteration count exceeds user
-           specified maximum */
-        do {
-            // Compute residual force vector for use in evaluating displacement increment
-            for (i = 0; i <= neq - 1; ++i) {
-                r[i] = qtot[i] - f[i];
-            }
-
-            // Pass control to stiff function
-            stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-
-            // Solve the system for incremental displacements
-            if (lss == 1) {
-                // Carry out computation of incremental displacement directly for lss = 1
-                dd[0] = r[0] / ss[0];
-            } else {
-                // Pass control to solve function
-                errchk = solve (ss, r, dd, maxa);
-
-                // Terminate program if errors encountered
-                if (errchk == 1) {
-                    fprintf(ofp, "\n\nSolution failed\n");
-                    printf("Solution failed, see output file\n");
-
-                    // Close the I/O
-                    if (fclose(ifp) != 0) {
-                        printf("***ERROR*** Unable to close the input file\n");
-                    } else {
-                        printf("Input file is closed\n");
-                    }
-                    if (fclose(ofp) != 0) {
-                        printf("***ERROR*** Unable to close the output file\n");
-                    } else {
-                        printf("Output file is closed\n");
-                    }
-                    getchar();
-                    return 0;
-                }
-            }
-
-            /* Update generalized nodal displacement vector, store generalized internal
-               force vector from previous iteration, and re-initialize generalized
-               internal force vector */
-            for (i = 0; i <= neq - 1; ++i) {
-                d[i] += dd[i];
-                fpi[i] = f[i];
-                f[i] = 0;
-            }
-
+	//Pass control to solver matrix system
+       pardiso(pt, &maxfct, &mnum,  &mtype, &phase, &neq, a, ia, ja,
+		&perm, &nrhs, iparm, &msglvl, f, disp, &error);
             // Pass control to forces function
             updatc (&x[0][0], dd, c1, c2, c3, elong, eleng, deflen, &minc[0][0],
                 &jcode[0][0]);
 
-            // Pass control to forces function
-            forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
-
-            if (itecnt == 1) {
-                // Compute internal energy from first iteration
-                intener1 = 0;
-            	for (i = 0; i <= neq - 1; ++i) {
-            		intener1 += dd[i] * (qtot[i] - fp[i]);
-            	}
-            }
-
-            // Pass control to test function
-            test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
-
-            itecnt ++; // Advance solution counter
-
-        } while (inconv != 0 && itecnt <= itemax);
-
-        // Store generalized internal force vector from current configuration
-        for (i = 0; i <= neq - 1; ++i) {
-            fp[i] = f[i];
-        }
-
-        if (inconv != 0) {
-            fprintf(ofp, "\n\n***ERROR*** Convergence not reached within specified");
-            fprintf(ofp, " number of iterations (INCONV = %d)", inconv);
-            fprintf(ofp, "\n\nSolution failed\n");
-            printf("Solution failed, see output file\n");
-
-            // Close the I/O
-            if (fclose(ifp) != 0) {
-                printf("***ERROR*** Unable to close the input file\n");
-            } else {
-                printf("Input file is closed\n");
-            }
-            if (fclose(ofp) != 0) {
-                printf("***ERROR*** Unable to close the output file\n");
-            } else {
-                printf("Output file is closed\n");
-            }
-            getchar();
-            return 0;
-        }
-
-        // Output model response
-        fprintf(ofp, "\n\t%lf", qi);
-        for (i = 0; i <= neq - 1; ++i) {
-            fprintf(ofp, "\t%lf", d[i]);
-        }
-
-        qi += dqi; // Increment load proportionality factor
-
-    } while (qi <= qimax);
-
-    if (qi >= qimax && inconv == 0) {
-        fprintf(ofp, "\n\nSolution successful\n");
-        printf("Solution successful\n");
-    }
-
-    // Close the I/O
+   // Close the I/O
     if (fclose(ifp) != 0) {
         printf("***ERROR*** Unable to close the input file\n");
     } else {
@@ -541,138 +446,124 @@ int load (double *pq, int *pjcode)
     return 0;
 }
 
-// This function determines kht using mcode, and determines maxa from kht
-void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss)
-{
-    int i, j, k, min; // Initialize function variables
-
-    // Zero-out kht
-    for (i = 0; i <= neq-1; ++i) {
-        *(pkht+i) = 0;
-    }
-
-    /* Define column height array, kht.  Each address in kht corresponds to a column in
-       the stiffness matrix; the value of the address defines the skyline height above
-       the diagonal entry. */
-    // Iterate over elements to span columns in mcode (LM array using Bathe's notation)
-    for (i = 0; i <= ne - 1; ++i) {
-        min = neq; // Guess at a reasonably large "minimum" to get things started
-        for (j = 0; j <= 5; ++j) {
-            // Does mcode entry correspond to a global DOF? Smaller than min?
-            if ((*(pmcode+i+j*ne) > 0) && (*(pmcode+i+j*ne) < min)) {
-                min = *(pmcode+i+j*ne); // New min...
-            }
-        }
-        for (j = 0; j <= 5; ++j) {
-            k = *(pmcode+i+j*ne);
-            // Does the mcode entry correspond to a global DOFs?
-            if (k != 0) {
-                /* Use the mcode to discern column height kht.  The maximum difference
-                   between non-zero mcode entries, (k - min), corresponding to given
-                   element, defines the column height in the stiffness matrix,
-                   corresponding to the degree of freedom "k". */
-                if ((k - min) > *(pkht+k-1)) {
-                    *(pkht+k-1) = k - min;
-                }
-            }
-        }
-    }
-
-    /* Generate maxa array - provides the addresses in stiffness array for the diagonal
-       elements of original stiffness matrix */
-    *pmaxa = 1;
-    for (i = 0; i <= neq - 1; ++i) { // Set counter to number of diagonal elements
-        /* Last diagonal term + column height + one equals new diagonal address
-           Last array element is used to define length of stiffness array */
-        *(pmaxa+i+1) = *(pmaxa+i) + *(pkht+i) + 1;
-    }
-    /* Length of stiffness matrix.  This is true since last element of maxa is the
-       address of the final skyline element, plus 1 */
-    *plss = *(pmaxa+neq)-1;
-    fprintf(ofp, "Length of stiffness array: %d\n\n", *plss);
-}
 
 /* This function computes the generalized tangent stiffness matrix and stores it as an
    array */
-void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss)
+void stiff (double *parea, double *pemod, double *peleng, double *pc1,
+    double *pc2, double *pc3, double *pelong,, int *pmcode, int *ia, int *ja, double*a)
 {
     // Initialize function variables
-    int i, n, je, j, ie, k, L;
+    int i, n, j;
     // Matrix of constants that guides element stiffness assembly from G's and H's
-    int index[6][6];
+    int diagonal, bottom, up; //initialize # of diagonal, bottom, and upper trusses
+    int Kt[ne*3][ne*3];//tangent stiffness matrix
     double gamma; // Axial stiffness of truss element
     double strain; // Axial strain in truss element
-    double G[7]; // Non-zero elements of linear stiffness matrix; upper left quadrant
+    double G[3][3]; // linear stiffness matrix; upper left quadrant
+    int count;
     /* Elements of non-linear stiffness matrix coinciding with non-zero elements G;
        upper left quadrant */
-    double H[7];
-
-    index[0][0] = index[3][3] = 1;
-    index[0][1] = index[3][4] = 3;
-    index[0][2] = index[3][5] = 6;
-    index[1][0] = index[4][3] = 3;
-    index[1][1] = index[4][4] = 2;
-    index[1][2] = index[4][5] = 5;
-    index[2][0] = index[5][3] = 6;
-    index[2][1] = index[5][4] = 5;
-    index[2][2] = index[5][5] = 4;
-
-    index[3][0] = index[0][3] = -1;
-    index[3][1] = index[0][4] = -3;
-    index[3][2] = index[0][5] = -6;
-    index[4][0] = index[1][3] = -3;
-    index[4][1] = index[1][4] = -2;
-    index[4][2] = index[1][5] = -5;
-    index[5][0] = index[2][3] = -6;
-    index[5][1] = index[2][4] = -5;
-    index[5][2] = index[2][5] = -4;
-
-    // Initialize stiffness matrix to zero before each element call
-    for (i = 0; i <= (*plss) - 1; ++i) {
-        *(pss+i) = 0;
+    double H[3][3];
+    for (i=0; i<ne*3; ++i){
+    	for (j=0; j<ne*3; ++j){
+	Kt[i][j] = 0;
+	}
     }
 
-    for (n = 0; n <= ne - 1; ++n) {
+    diagonal= (ne+1)/2;
+    bottom = (ne-diagonal+1)/2;
+    top = bottom - 1;	
+    count = 0;
+    for (n = 0; n <= diagonal - 1; ++n) {
         gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
         strain = (*(pelong+n)) / (*(peleng+n));
-        G[1] = gamma * (*(pc1+n)) * (*(pc1+n));
-        G[2] = gamma * (*(pc2+n)) * (*(pc2+n));
-        G[3] = gamma * (*(pc1+n)) * (*(pc2+n));
-        G[4] = gamma * (*(pc3+n)) * (*(pc3+n));
-        G[5] = gamma * (*(pc2+n)) * (*(pc3+n));
-        G[6] = gamma * (*(pc1+n)) * (*(pc3+n));
-        H[1] = H[2] = H[4] = (*(parea+n)) * (*(pemod+n)) * strain /
+        G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
+        G[1][1] = gamma * (*(pc2+n)) * (*(pc2+n));
+        G[0][1] = G[1][0] =gamma * (*(pc1+n)) * (*(pc2+n));
+        G[2][2] = gamma * (*(pc3+n)) * (*(pc3+n));
+        G[2][1] = G[1][2] = gamma * (*(pc2+n)) * (*(pc3+n));
+        G[2][0] = G[0][2] = gamma * (*(pc1+n)) * (*(pc3+n));
+        H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
             ((*(peleng+n)) + (*(pelong+n)));
-        H[3] = H[5] = H[6] = 0;
+        H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
+   
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+3][j+3] += G[i][j] + H[i][j];
+		Kt[i+3][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+3] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
 
-        /* Initialize index and then assign stiffness coefficients, G & H, of element n
-           to the stiffness matrix by index, mcode, and maxa */
-        for (je = 0; je <= 5; ++je) {
-            j = *(pmcode+n+je*ne);
-            if (j != 0) {
-                // Check mcode above current entry to find rank of "j"
-                for (ie = 0; ie <= je; ++ie) {
-                    i = *(pmcode+n+ie*ne);
-                    if (i != 0) {
-                        if (i > j) { // Find element address as diagonal address + delta
-                            k = *(pmaxa+i-1) + (i - j);
-                        } else {
-                            k = *(pmaxa+j-1) + (j - i);
-                        }
-                        L = index[ie][je];
-                        /* Add current element stiffness to previous elements'
-                           contributions to the given DOFs */
-                        if (L > 0) {
-                            *(pss+k-1) += G[L] + H[L];
-                        } else {
-                            *(pss+k-1) -= G[-1 * L] + H[-1 * L];
-                        }
-                    }
-                }
-            }
-        }
-    }
+	count = count+3;
+   }
+
+	count = 0;
+   for (n = diagonal; n < diagonal+bottom; ++n) 
+        gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
+        strain = (*(pelong+n)) / (*(peleng+n));
+        G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
+        G[1][1] = gamma * (*(pc2+n)) * (*(pc2+n));
+        G[0][1] = G[1][0] =gamma * (*(pc1+n)) * (*(pc2+n));
+        G[2][2] = gamma * (*(pc3+n)) * (*(pc3+n));
+        G[2][1] = G[1][2] = gamma * (*(pc2+n)) * (*(pc3+n));
+        G[2][0] = G[0][2] = gamma * (*(pc1+n)) * (*(pc3+n));
+        H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
+            ((*(peleng+n)) + (*(pelong+n)));
+        H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
+   
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+6][j+6] += G[i][j] + H[i][j];
+		Kt[i+6][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+6] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
+
+	count = count+6;
+   } 
+
+   count = 3; 
+   for (n = diagonal + bottom; n < ne; ++n) 
+        gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
+        strain = (*(pelong+n)) / (*(peleng+n));
+        G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
+        G[1][1] = gamma * (*(pc2+n)) * (*(pc2+n));
+        G[0][1] = G[1][0] =gamma * (*(pc1+n)) * (*(pc2+n));
+        G[2][2] = gamma * (*(pc3+n)) * (*(pc3+n));
+        G[2][1] = G[1][2] = gamma * (*(pc2+n)) * (*(pc3+n));
+        G[2][0] = G[0][2] = gamma * (*(pc1+n)) * (*(pc3+n));
+        H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
+            ((*(peleng+n)) + (*(pelong+n)));
+        H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
+   
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+6][j+6] += G[i][j] + H[i][j];
+		Kt[i+6][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+6] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
+
+	count = count+6;
+   } 
+
+  
+ ia = 1;
+  for (i=0; i<6; ++i){
+	k = 0;
+	for (j=0; j<6; ++j){
+		if (Kt[i][j] != 0){
+		   ja[k] = j +  1;
+        	   a[k] = Kt[i][j];
+		   ++k;
+		}
+	}
+	ia[i+1] = ia[i] + k;
+   }	
 }
 
 // This function computes the generalized internal force vector
@@ -732,173 +623,7 @@ void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
    elimination strategy (Holzer pp. 290, 296, 307) and based on subroutine COLSOL -
    "active column solution or the skyline (or column) reduction method"
    (Bathe 1976, p. 257) */
-int solve (double *pss, double *pr, double *pdd, int *pmaxa)
-{
-    // Initialize function variables
-    int i, n, kn, kl, ku, kh, k, ic, klt, j, ki, nd, kk, l;
-    double b, c, q[neq];
 
-    /* Pass residual to local array variable "q" which will later be used to pass the
-       incremental displacements back out to main */
-    for (i = 1; i <= neq; ++i) {
-        q[i - 1] = *(pr+i-1);
-    }
-
-    // Perform LDL^t factorization of the stiffness matrix
-    for (n = 1; n <= neq; ++n) {
-        kn = *(pmaxa+n-1);
-        kl = kn + 1;
-        ku = *(pmaxa+n) - 1;
-        kh = ku - kl;
-        if (kh < 0) {
-            if (*(pss+kn-1) <= 0) {
-                fprintf(ofp, "\n\n***ERROR*** Non-positive definite stiffness matrix");
-                return 1;
-            }
-        } else if (kh > 0) {
-            k = n - kh;
-            ic = 0;
-            klt = ku;
-            for (j = 1; j <= kh; ++j) {
-                ic ++;
-                klt -= 1;
-                ki = *(pmaxa+k-1);
-                nd = *(pmaxa+k) - ki - 1;
-                if (nd > 0) {
-                    if (nd < ic) {
-                        kk = nd;
-                    } else {
-                        kk = ic;
-                    }
-                    c = 0;
-                    for (l = 1; l <= kk; ++l) {
-                        c += *(pss+ki-1+l) * (*(pss+klt-1+l));
-                    }
-                    *(pss+klt-1) -= c;
-                }
-                k ++;
-            }
-            k = n;
-            b = 0;
-            for (kk = kl; kk <= ku; ++kk) {
-                k -= 1;
-                ki = *(pmaxa+k-1);
-                c = *(pss+kk-1) / (*(pss+ki-1));
-                b += c * (*(pss+kk-1));
-                *(pss+kk-1) = c;
-            }
-            *(pss+kn-1) -= b;
-            if (*(pss+kn-1) <= 0) {
-                fprintf(ofp, "\n\n***ERROR*** Non-positive definite stiffness matrix");
-                return 1;
-            }
-        } else if (kh == 0) {
-            k = n;
-            b = 0;
-            for (kk = kl; kk <= ku; ++kk) {
-                k -= 1;
-                ki = *(pmaxa+k-1);
-                c = *(pss+kk-1) / (*(pss+ki-1));
-                b += c * (*(pss+kk-1));
-                *(pss+kk-1) = c;
-            }
-            *(pss+kn-1) -= b;
-            if (*(pss+kn-1) <= 0) {
-                fprintf(ofp, "\n\n***ERROR*** Non-positive definite stiffness matrix");
-                return 1;
-            }
-        }
-    }
-
-    // Reduce right-hand-side load vector
-    for (n = 1; n <= neq; ++n) {
-        kl = *(pmaxa+n-1) + 1;
-        ku = *(pmaxa+n) - 1;
-        kh = ku - kl;
-        if (kh >= 0) {
-            k = n;
-            c = 0;
-            for (kk = kl; kk <= ku; ++kk) {
-                k -= 1;
-                c += *(pss+kk-1) * q[k - 1];
-            }
-            q[n - 1] -= c;
-        }
-    }
-
-    // Back-substitute
-    for (n = 1; n <= neq; ++n) {
-        k = *(pmaxa+n-1);
-        q[n - 1] = q[n - 1] / (*(pss+k-1));
-    }
-    if (neq == 1) {
-        return 0;
-    }
-    n = neq;
-    for (i = 2; i <= neq; ++i) {
-        kl = *(pmaxa+n-1) + 1;
-        ku = *(pmaxa+n) - 1;
-        kh = ku - kl;
-        if (kh >= 0) {
-            k = n;
-            for (kk = kl; kk <= ku; ++kk) {
-                k -= 1;
-                q[k - 1] -= *(pss+kk-1) * q[n - 1];
-            }
-        }
-        n -= 1;
-    }
-
-    /* Pass the local array variable "q" to the incremental displacements for use in
-       main */
-    for (i = 1; i <= neq; ++i) {
-        *(pdd+i-1) = q[i - 1];
-    }
-    return 0;
-}
-
-/* This function performs convergence check; assume that convergence is reached,
-   i.e. inconv = 0, until proven otherwise */
-void test (double *pf, double *pfp, double *pqtot, double *pdd, double *pfpi,
-    double *pintener1, int *pinconv, int *pneq, double *ptolfor, double *ptolener)
-{
-    // Initialize function variables
-    int i;
-    double unbfi = 0;
-    double unbfp = 0;
-    double inteneri = 0;
-    double c = 0;
-    *pinconv = 0;
-
-    if (*ptolfor < 1) {
-        // Compute Euclidean vector norm of unbalanced forces
-        for (i = 0; i <= neq - 1; ++i) {
-            unbfi += (*(pqtot+i) - (*(pf+i))) * (*(pqtot+i) - (*(pf+i)));
-            unbfp += (*(pqtot+i) - (*(pfp+i))) * (*(pqtot+i) - (*(pfp+i)));
-        }
-        // Check against force tolerance
-        if (unbfp != 0) {
-            c = sqrt(unbfi) / sqrt(unbfp);
-            if (c > *ptolfor) {
-               *pinconv += 10;
-            }
-        }
-    }
-
-    if (*ptolener < 1) {
-        // Compute incremental internal energy during each iteration
-        for (i = 0; i <= neq - 1; ++i) {
-            inteneri += (*(pdd+i) * (*(pqtot+i) - (*(pfpi+i))));
-        }
-        // Check against tolerances
-        if (*pintener1 != 0) {
-            c = fabs(inteneri / *pintener1);
-            if (c > *ptolener) {
-                *pinconv += 100;
-            }
-        }
-    }
-}
 
 // This function updates member geometry
 void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,

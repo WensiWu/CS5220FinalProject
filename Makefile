@@ -37,6 +37,22 @@ exe-vec: 3D_geom_nonlin_truss_vec.x
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
+exetest: testtruss.x 
+
+testtruss.x: testtruss.o 
+	$(CC) $(OMP_CFLAGS) $^ -o $@
+
+testtruss.o: testtruss.c
+	$(CC) -c $(OMP_CFLAGS) $<
+
+pardiso: pardisotruss.x 
+
+pardisotruss.x: pardisotruss.o
+	$(CC) $(OMP_CFLAGS) $^ -o $@
+
+pardisotruss.o: pardisotruss.c
+	$(CC) -c $(OMP_CFLAGS) $<
+
 
 # === Profiling
 
