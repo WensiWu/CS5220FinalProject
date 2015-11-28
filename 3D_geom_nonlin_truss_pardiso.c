@@ -63,7 +63,7 @@ int load (double *pq, int *pjcode);
 
 // Stiffness functions:
 void stiff  (double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmcode, int *ia[], int *ja[], double *a[]);
+    double *pc2, double *pc3, double *pelong, int *pmcode, int *ia, int *ja, double *a);
 
 // Internal force vector function:
 void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
@@ -157,7 +157,7 @@ int main (void)
     double qtot[neq];					// Total load vector, i.e. qi * q[neq]
     double d[neq], dd[neq];				// Total and incremental nodal displacement vectors   	
    
-    int mytype = 1 ; // tells pardiso the matrix is real and symmetric
+    int mytype = 2 ; // tells pardiso the matrix is real and symmetric and positive definite
     int solver;
     int iparm[64];
     double dparm[64];
@@ -166,14 +166,14 @@ int main (void)
     int maxfct;
     int mnum;
     int phase=23; // tells pardiso to do numerical factorization + solve, might want 22 and then 33 for iterative refinement?
-    double a[];
-    int ia[];
-    int ja[];
+    double a[9*ne];
+    int ia[ne+1]; //size is equal to the number of entries in the diagonal of the matrix
+    int ja[9*ne]; 
     int perm[];
     int nrhs = 1; // tells pardiso: number of right hand side  =1
     int *msglvl;
-    double b[];
-    double x[];
+   // double b[]; same as the force vector. 
+    double disp[ne];
     
 	// setup pardiso parameters
 	//
@@ -253,7 +253,7 @@ int main (void)
 
 	//Pass control to solver matrix system
        pardiso(pt, &maxfct, &mnum,  &mtype, &phase, &neq, a, ia, ja,
-		&perm, &nrhs, iparm, &msglvl, f, x, &error);
+		&perm, &nrhs, iparm, &msglvl, f, disp, &error);
             // Pass control to forces function
             updatc (&x[0][0], dd, c1, c2, c3, elong, eleng, deflen, &minc[0][0],
                 &jcode[0][0]);
@@ -450,25 +450,31 @@ int load (double *pq, int *pjcode)
 /* This function computes the generalized tangent stiffness matrix and stores it as an
    array */
 void stiff (double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong,, int *pmcode, int *ia[], int *ja[], double*a[])
+    double *pc2, double *pc3, double *pelong,, int *pmcode, int *ia, int *ja, double*a)
 {
     // Initialize function variables
     int i, n, j;
     // Matrix of constants that guides element stiffness assembly from G's and H's
-    int Kt[6][6];//tangent stiffness matrix
+    int diagonal, bottom, up; //initialize # of diagonal, bottom, and upper trusses
+    int Kt[ne*3][ne*3];//tangent stiffness matrix
     double gamma; // Axial stiffness of truss element
     double strain; // Axial strain in truss element
-    double G[3][3]; // Non-zero elements of linear stiffness matrix; upper left quadrant
+    double G[3][3]; // linear stiffness matrix; upper left quadrant
+    int count;
     /* Elements of non-linear stiffness matrix coinciding with non-zero elements G;
        upper left quadrant */
     double H[3][3];
-    for (i=0; i<6; ++i){
-    	for (j=0; j<6; ++j){
+    for (i=0; i<ne*3; ++i){
+    	for (j=0; j<ne*3; ++j){
 	Kt[i][j] = 0;
 	}
     }
-	
-    for (n = 0; n <= ne - 1; ++n) {
+
+    diagonal= (ne+1)/2;
+    bottom = (ne-diagonal+1)/2;
+    top = bottom - 1;	
+    count = 0;
+    for (n = 0; n <= diagonal - 1; ++n) {
         gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
         strain = (*(pelong+n)) / (*(peleng+n));
         G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
@@ -480,18 +486,73 @@ void stiff (double *parea, double *pemod, double *peleng, double *pc1,
         H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
             ((*(peleng+n)) + (*(pelong+n)));
         H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
+   
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+3][j+3] += G[i][j] + H[i][j];
+		Kt[i+3][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+3] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
+
+	count = count+3;
    }
 
-   for (i=0; i<3; ++i){
-	for (j=0; j<3; ++j){
-	Kt[i][j] = G[i][j] + H[i][j];
-	Kt[i+3][j+3] = G[i][j] + H[i][j];
-	Kt[i+3][j] = -1 * (G[i][j] + H[i][j]);
-	Kt[i][j+3] = -1 * (G[i][j] + H[i][j]);
-	}
-   }
+	count = 0;
+   for (n = diagonal; n < diagonal+bottom; ++n) 
+        gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
+        strain = (*(pelong+n)) / (*(peleng+n));
+        G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
+        G[1][1] = gamma * (*(pc2+n)) * (*(pc2+n));
+        G[0][1] = G[1][0] =gamma * (*(pc1+n)) * (*(pc2+n));
+        G[2][2] = gamma * (*(pc3+n)) * (*(pc3+n));
+        G[2][1] = G[1][2] = gamma * (*(pc2+n)) * (*(pc3+n));
+        G[2][0] = G[0][2] = gamma * (*(pc1+n)) * (*(pc3+n));
+        H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
+            ((*(peleng+n)) + (*(pelong+n)));
+        H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
    
- ia[0] = 1;
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+6][j+6] += G[i][j] + H[i][j];
+		Kt[i+6][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+6] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
+
+	count = count+6;
+   } 
+
+   count = 3; 
+   for (n = diagonal + bottom; n < ne; ++n) 
+        gamma = (*(parea+n)) * (*(pemod+n)) / (*(peleng+n));
+        strain = (*(pelong+n)) / (*(peleng+n));
+        G[0][0] = gamma * (*(pc1+n)) * (*(pc1+n));
+        G[1][1] = gamma * (*(pc2+n)) * (*(pc2+n));
+        G[0][1] = G[1][0] =gamma * (*(pc1+n)) * (*(pc2+n));
+        G[2][2] = gamma * (*(pc3+n)) * (*(pc3+n));
+        G[2][1] = G[1][2] = gamma * (*(pc2+n)) * (*(pc3+n));
+        G[2][0] = G[0][2] = gamma * (*(pc1+n)) * (*(pc3+n));
+        H[0][0] = H[1][1] = H[2][2] = (*(parea+n)) * (*(pemod+n)) * strain /
+            ((*(peleng+n)) + (*(pelong+n)));
+        H[0][1] = H[1][0] = H[1][2] = H[2][1] = H[0][2] = H[2][0] = 0;
+   
+	for (i = count; i< count + 3; ++i){
+		for (j = count; j< count + 3; ++j){
+		Kt[i][j] += G[i][j] + H[i][j];
+		Kt[i+6][j+6] += G[i][j] + H[i][j];
+		Kt[i+6][j] += -1 * (G[i][j] + H[i][j]);
+		Kt[i][j+6] += -1 * (G[i][j] + H[i][j]);
+		}
+	}
+
+	count = count+6;
+   } 
+
+  
+ ia = 1;
   for (i=0; i<6; ++i){
 	k = 0;
 	for (j=0; j<6; ++j){
