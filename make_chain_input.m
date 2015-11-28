@@ -1,4 +1,4 @@
-elements = 99999; %number of elements: elements should be odd for a truss bridge
+elements = 7; %number of elements: elements should be odd for a truss bridge
 nodes=(elements+1)/2+1;  % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
@@ -14,16 +14,16 @@ for i=1:diagonal
 end
 
 %truss members at the bottom
-bottom= (elements-diagonal+1)/2;
-for i=1:2:bottom
+rest= elements-diagonal;
+for i=1:rest
    fprintf(fileID, '%d, %d\n', i, i+2);
 end
 
 %truss members at the top
-top= bottom-1;
-for i=1:2:top
-   fprintf(fileID, '%d, %d\n', i+1, i+3);
-end
+%top= bottom-1;
+%for i=1:2:top
+%   fprintf(fileID, '%d, %d\n', i+1, i+3);
+%end
 
 %joint constraints
 %for i=1:nodes 
@@ -35,6 +35,8 @@ end
 %        fprintf(fileID,'%d, %d\n', i, 3);
 %    end
 %end
+
+
 
 for i=1:nodes
    if i==1
@@ -58,7 +60,7 @@ end
 fprintf(fileID,'0, 0\n');
 
 
-xoffset=10;
+xoffset=5;
 yoffset=2;
 for i=0:nodes-1
     xcoor=i*xoffset;
