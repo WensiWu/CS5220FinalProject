@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 elements = 7; %number of elements: elements should be odd for a truss bridge
-=======
-elements = 999; %number of elements: elements should be odd for a truss bridge
->>>>>>> 354b09040b174e55214c322b3b97a9fdcf3e287b
 nodes=(elements+1)/2+1;  % number of nodes
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
@@ -30,34 +26,38 @@ end
 %end
 
 %joint constraints
-%for i=1:nodes 
-%    if mod(i,2)==1
-%        for j=1:3
-%            fprintf(fileID,'%d, %d\n', i, j);
-%        end
-%    else 
-%        fprintf(fileID,'%d, %d\n', i, 3);
-%    end
-%end
-
-
-
-for i=1:nodes
+for i=1:nodes 
    if i==1
-	for j=1:3
-	   fprintf(fileID, '%d, %d\n', i, j);
-	end
+       for j=1:3
+           fprintf(fileID,'%d, %d\n', i, j);
+       end
+   elseif i==nodes
+       for j=1:2:3
+           fprintf(fileID,'%d, %d\n', i, j);
+       end
+   elseif mod(i,2)~=1
+       fprintf(fileID,'%d, %d\n', i, 3);
    end
-   if mod(i,2)==1
-	fprintf(fileID, '%d, %d\n', i, 2);
-   end
-   if i==nodes
-	for j=1:2:3
-	  fprintf(fileID, '%d, %d\n', i, j );
-	end
-   end
-end 
+end
 
+
+
+% for i=1:nodes
+%    if i==1
+% 	for j=1:3
+% 	   fprintf(fileID, '%d, %d\n', i, j);
+% 	end
+%    end
+%    if mod(i,2)==1
+% 	fprintf(fileID, '%d, %d\n', i, 3);
+%    end
+%    if i==nodes
+% 	for j=1:2:3
+% 	  fprintf(fileID, '%d, %d\n', i, j );
+% 	end
+%    end
+% end 
+% 
 
 
 %done with constraint statement:

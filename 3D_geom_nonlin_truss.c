@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
+
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-<<<<<<< HEAD
 #define INPUT "7elementschain.txt"
-=======
-#define INPUT "2999elementschain.txt"
->>>>>>> 354b09040b174e55214c322b3b97a9fdcf3e287b
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
