@@ -27,15 +27,11 @@ end
 
 %joint constraints
 for i=1:nodes 
-   if i==1
+   if mod(i,2)==1
        for j=1:3
            fprintf(fileID,'%d, %d\n', i, j);
        end
-   elseif i==nodes
-       for j=1:2:3
-           fprintf(fileID,'%d, %d\n', i, j);
-       end
-   elseif mod(i,2)~=1
+   else 
        fprintf(fileID,'%d, %d\n', i, 3);
    end
 end
