@@ -157,7 +157,7 @@ int main (void)
     double qtot[neq];					// Total load vector, i.e. qi * q[neq]
     double d[neq], dd[neq];				// Total and incremental nodal displacement vectors   	
    
-    int mytype = 2 ; // tells pardiso the matrix is real and symmetric and positive definite
+    int mytype = 1 ; // tells pardiso the matrix is real and symmetric and positive definite
     int solver;
     int iparm[64];
     double dparm[64];
@@ -223,7 +223,7 @@ int main (void)
     }
 
     // Read in solver parameters from input file
-    fscanf(ifp, "%lf,%lf,%lf\n", &qimax, &qi, &dqi);
+    /*fscanf(ifp, "%lf,%lf,%lf\n", &qimax, &qi, &dqi);
     fscanf(ifp, "%d\n", &itemax);
     fscanf(ifp, "%lf,%lf\n", &tolfor, &tolener);
 
@@ -231,7 +231,7 @@ int main (void)
     fprintf(ofp, "\nNonlinear Equilibrium Path:\n\tLambda\t");
     for (i = 0; i <= neq - 1; ++i) {
         fprintf(ofp, "\tDOF %d\t", i + 1);
-    }
+    }*/
 
     // Initialize generalized nodal displacement and internal force vectors
     for (i = 0; i <= neq - 1; ++i) {
