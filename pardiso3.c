@@ -1,11 +1,10 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 //#include <omp.h>
 #include <mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "9999elementschain.txt"
+#define INPUT "999elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -195,7 +194,7 @@ int main (void)
 
 
 
-    MKL_INT mtype = -2;       /* Real symmetric matrix */
+    MKL_INT mtype = 2;       /* Real symmetric matrix */
   
  
     MKL_INT nrhs = 1;     /* Number of right hand sides. */
@@ -356,7 +355,7 @@ int main (void)
 			pt[i]=0;
    		 }
    
- 
+ 		//double t0 = omp_get_wtime();
 
 		/* -------------------------------------------------------------------- */
 		/* .. Reordering and Symbolic Factorization. This step also allocates */
@@ -416,7 +415,8 @@ int main (void)
 	         free(ia);
 	         free(ja);
  
-
+	//	 double t1 = omp_get_wtime();
+		// printf("Time spent on solver at this iteration: %g \n", t1-t0);
                 // Terminate program if errors encountered
                 if (errchk == 1) {
                     fprintf(ofp, "\n\nSolution failed\n");
