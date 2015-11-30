@@ -8,3 +8,32 @@ OPTFLAGS=-O3 -no-prec-div -opt-prefetch -xHost -ansi-alias -ipo -restrict
 CFLAGS+=$(OPTFLAGS) $(ANALYSIS)
 MPI_CFLAGS=$(CFLAGS)
 OMP_CFLAGS=$(CFLAGS) -openmp
+
+# C and Fortran compilers
+FC=ifort
+LD=ifort
+#
+# # Compiler optimization flags.  You will definitely want to play with these!
+# #
+# # Try with more flags.  We refer to : https://github.com/kenlimmj/matmul-/blob/master/Group016_KennethLim_XinyiWang_WenjiaGu.md
+CFLAGS = -std=gnu99
+FFLAGS =
+LDFLAGS = -fopenmp -nofor_main
+#
+# # Add -DDEBUG_RUN to CPPFLAGS to cut down on the cases.
+CPPFLAGS = "-DCOMPILER=\"$(CC)\"" "-DFLAGS=\"$(OPTFLAGS)\""
+
+# # Compile a C version (using basic_dgemm.c, in this case):
+LIBS = -lm -lirng
+OBJS = matmul.o
+#
+# # Libraries and include files for BLAS
+LIBBLAS=-lopenblas
+INCBLAS=
+
+# # Libraries and include files for BLAS
+LIBMKL=-lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
+INCMKL=
+
+
+

@@ -13,7 +13,7 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-vec clean realclean
+.PHONY: exe exe-vec pardiso clean realclean
 
 
 # === Executables
@@ -45,16 +45,14 @@ testtruss.x: testtruss.o
 testtruss.o: testtruss.c
 	$(CC) -c $(OMP_CFLAGS) $<
 
-pardiso: pardisotruss.x 
+pardiso: pardiso2.x 
 
-pardisotruss.x: pardisotruss.o
-	$(CC) $(OMP_CFLAGS) $^ -o $@
+pardiso2.x: pardiso2.o
+	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
-pardisotruss.o: pardisotruss.c
-	$(CC) -c $(OMP_CFLAGS) $<
+pardiso2.o: pardiso2.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(INCMKL) $< 
 
-
-# === Profiling
 
 .PHONY: maqao-cqa maqao-perf scan-build vtune-report
 
