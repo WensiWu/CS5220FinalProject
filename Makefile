@@ -48,10 +48,10 @@ testtruss.o: testtruss.c
 pardiso: pardiso3.x 
 
 pardiso3.x: pardiso3.o
-	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
 pardiso3.o: pardiso3.c
-	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(INCMKL) $< 
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 pardisotest: pardisotest.x 
 

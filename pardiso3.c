@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <omp.h>
+#include <omp.h>
 #include <mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "999elementschain.txt"
+#define INPUT "9999elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -137,7 +137,12 @@ int main (void)
     int itecnt, itemax;							// Iteration counter and max number of iterations
     int errchk;									// Error check variable on user defined functions
     int i;										// Counter variable
-
+ 	
+	// timing variables
+    double t0, t1, solvetimer, indextimer, stifftimer;
+    solvetimer=0;
+    indextimer=0;
+    stifftimer=0;
     // Pass control to struc function
     errchk = struc(&jcode[0][0], &minc[0][0]);
 
@@ -238,7 +243,7 @@ int main (void)
     iparm[19] = 0;        /* Output: Numbers of CG Iterations */
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
-    msglvl = 1;           /* Print statistical information in file */
+    msglvl = 0;           /* Print statistical information in file */
     error = 0;            /* Initialize error flag */
 /* -------------------------------------------------------------------- */
 /* .. Initialize the internal solver memory pointer. This is only */
@@ -325,40 +330,27 @@ int main (void)
             for (i = 0; i <= neq - 1; ++i) {
                 r[i] = qtot[i] - f[i];
             }
-
+	    t0 = omp_get_wtime();
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-
+            t1 = omp_get_wtime();
+	    stifftimer = stifftimer + (t1-t0);
+	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
 	    // changes indexing to full, and sets size of src
+	    t0 = omp_get_wtime();
 	    sky_to_full(neq, lss, csrsize, full, ss, maxa);
 
 	    a = (double*)malloc((*csrsize)*sizeof(double));
             ja = (MKL_INT*)malloc((*csrsize)*sizeof(MKL_INT));
 	    ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
 
-	
-	    full_to_csr(neq, full, a, ia, ja);
-
-	    for(int i=0; i < neq + 1; ++i){
-		printf("%d ",ia[i]);
-		}    printf("\n");
-	    for(int i=0; i < *csrsize; ++i){
-		printf("%d ",ja[i]);
-		}    printf("\n");
-
-
-	    for (int i=0; i < *csrsize; ++i){
-		printf("%g ", a[i]);	
-		}	printf("\n");
-	    for( int i=0; i < lss; ++i){
-		printf("%g ",ss[i]);
-		}
-		printf("\n");	
-	    for (int i = 0; i < neq +1 ; ++i){
-		printf("%d ", maxa[i]);
-		}
-	    printf("csrsize: %d, end of ia: %d\n",*csrsize, ia[neq]);
-            // Solve the system for incremental displacements
+		
+	    printf("Number of non zeros:%d \n",*csrsize);
+            full_to_csr(neq,full,a, ia, ja);
+	    // Solve the system for incremental displacements
+	    t1 = omp_get_wtime();
+	    indextimer = indextimer + (t1-t0);
+	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
             if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
                 dd[0] = r[0] / ss[0];
@@ -369,54 +361,14 @@ int main (void)
 		// r = right hand side
 		// a, ia ,ja matrix in src
 		// dd = solution ("x")
-		
-                printf("pt: %d\n  &maxfct %d,  &mnum %d, &mtype = %d", pt, &maxfct, &mnum, mtype);
-		printf("a[*srcsize-1]=%g, ja[size-1]=%d, ia[neq]=%d, %d %d", a[*csrsize-1], ja[*csrsize-1], ia[neq], r[neq-1] , dd[neq-1]);
-		printf("iparm(28)=%d , iparm(35)= %d, \n", iparm[28],iparm[35]);
-		
+		t0 = omp_get_wtime();
 
-
-	    /* Matrix data. */
-	
-    		MKL_INT ntest = 8;
-	    	MKL_INT iatest[9] = { 1, 5, 8, 10, 12, 15, 17, 18, 19};
-    		MKL_INT jatest[18] = 
-    		{ 1,    3,       6, 7,
-         2, 3,    5,
-            3,             8,
-               4,       7,
-                  5, 6, 7,
-                     6,    8,
-                        7,
-                           8
-    };
-    double atest[18] = 
-    { 7.0,      1.0,           2.0, 7.0,
-          -4.0, 8.0,      2.0,
-                1.0,                     5.0,
-                     7.0,           9.0,
-                          5.0, 1.0, 5.0,
-                              -1.0,      5.0,
-                                   11.0,
-                                         5.0
-    };
-    MKL_INT mtypetest = -2;       /* Real symmetric matrix */
-    /* RHS and solution vectors. */
-    double btest[8], xtest[8];
-
-
- 	
-
-		for( int i=0; i < neq; ++i){
-			btest[i]=1;
-			}
-
- 		 for ( i = 0; i < 64; i++ )
+		//resets pointer
+ 		for ( i = 0; i < 64; i++ )
     		{
 			pt[i]=0;
-   		 }
+   		}
    
- 
 
 		/* -------------------------------------------------------------------- */
 		/* .. Reordering and Symbolic Factorization. This step also allocates */
@@ -426,10 +378,6 @@ int main (void)
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 	
-	//	PARDISO (pt, &maxfct, &mnum, &mtypetest, &phase,
-          //   	&ntest, atest, iatest, jatest, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
-
-
 
     		if ( error != 0 )
     		{
@@ -448,10 +396,6 @@ int main (void)
            	  &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
 
-	//	PARDISO (pt, &maxfct, &mnum, &mtypetest, &phase,
-          //   	&ntest, atest, iatest, jatest, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
-
-
   	 	if ( error != 0 )
    		 {
         	printf ("\nERROR during numerical factorization: %d", error);
@@ -463,10 +407,6 @@ int main (void)
     		/* Set right hand side to one. */
 	        PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
             	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
-
-		//PARDISO (pt, &maxfct, &mnum, &mtypetest, &phase,
-             	//&ntest, atest, iatest, jatest, &idum, &nrhs, iparm, &msglvl, btest, xtest, &error);
-
 
 
 		 if ( error != 0 )
@@ -483,10 +423,10 @@ int main (void)
 	         PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
                  &n_MKL, &ddum, ia, ja, &idum, &nrhs,
                  iparm, &msglvl, &ddum, &ddum, &error);
- 
-		//exit(0);	
-	
-		// here im assuming "r" is the righthand side vector
+ 		 
+		 t1 = omp_get_wtime();
+		 solvetimer = solvetimer+(t1-t0);
+		 printf("Total time spent on solving: %g \n", solvetimer);
 
                 // Terminate program if errors encountered
                 if (errchk == 1) {
