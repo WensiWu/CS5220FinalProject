@@ -45,12 +45,20 @@ testtruss.x: testtruss.o
 testtruss.o: testtruss.c
 	$(CC) -c $(OMP_CFLAGS) $<
 
-pardiso: pardiso2.x 
+pardiso: pardiso3.x 
 
-pardiso2.x: pardiso2.o
+pardiso3.x: pardiso3.o
 	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
-pardiso2.o: pardiso2.c
+pardiso3.o: pardiso3.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(INCMKL) $< 
+
+pardisotest: pardisotest.x 
+
+pardisotest.x: pardiso_sym_c.o
+	$(LD) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+
+pardiso_sym_c.o: pardiso_sym_c.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(INCMKL) $< 
 
 
