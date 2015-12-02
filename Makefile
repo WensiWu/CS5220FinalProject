@@ -86,4 +86,4 @@ clean:
 	rm -f *.o
 
 realclean: clean
-	rm -f 3D_geom_nonlin_truss.x
+	rm -f 3D_geom_nonlin_truss.x pardiso3.x pardiso_sky.x
