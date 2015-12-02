@@ -29,6 +29,17 @@ exe: 3D_geom_nonlin_truss.x
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
+
+malloc: 3D_geom_nonlin_truss_malloc.x
+
+3D_geom_nonlin_truss_malloc.x: 3D_geom_nonlin_truss_malloc.o 
+	$(CC) $(OMP_CFLAGS) $^ -o $@
+
+3D_geom_nonlin_truss_malloc.o: 3D_geom_nonlin_truss_malloc.c
+	$(CC) -c $(OMP_CFLAGS) $<
+
+
+
 exetest: testtruss.x 
 
 testtruss.x: testtruss.o 
