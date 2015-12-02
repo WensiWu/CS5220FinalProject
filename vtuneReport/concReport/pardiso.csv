@@ -1,0 +1,12 @@
+Function,Module,CPU Time,CPU Time:Idle,CPU Time:Poor,CPU Time:Ok,CPU Time:Ideal,CPU Time:Over,Wait Time,Spin Time,Overhead Time,Thread Oversubscription
+full_to_csr,pardiso3.x,2.038982,0.0,2.038982,0.0,0.0,0.0,,0.0,0.0,0.0
+[MKL PARDISO]@pardiso,libmkl_core.so,1.668970,0.0,1.668970,0.0,0.0,0.0,0.000434,0.0,0.0,0.0
+__intel_memset,pardiso3.x,1.068106,0.0,1.068106,0.0,0.0,0.0,,0.0,0.0,0.0
+sky_to_full,pardiso3.x,0.509938,0.0,0.509938,0.0,0.0,0.0,,0.0,0.0,0.0
+codes,pardiso3.x,0.030001,0.0,0.030001,0.0,0.0,0.0,,0.0,0.0,0.0
+__isoc99_fscanf,libc-2.12.so,0.020002,0.0,0.020002,0.0,0.0,0.0,0.000040,0.0,0.0,0.0
+fprintf,libc-2.12.so,0.020000,0.0,0.020000,0.0,0.0,0.0,0.000260,0.0,0.0,0.0
+stiff,pardiso3.x,0.010002,0.0,0.010002,0.0,0.0,0.0,,0.0,0.0,0.0
+[MKL BLAS]@xdtrsm,libmkl_core.so,0.010000,0.0,0.010000,0.0,0.0,0.0,,0.0,0.0,0.0
+forces,pardiso3.x,0.010000,0.0,0.010000,0.0,0.0,0.0,,0.0,0.0,0.0
+main,pardiso3.x,,,,,,,0.001662,,,

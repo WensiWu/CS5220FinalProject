@@ -1,0 +1,5 @@
+Function,Module,CPU Time,CPU Time:Idle,CPU Time:Poor,CPU Time:Ok,CPU Time:Ideal,CPU Time:Over,Wait Time,Spin Time,Overhead Time,Thread Oversubscription
+[MKL PARDISO]@pardiso,libmkl_core.so,0.050000,0.0,0.050000,0.0,0.0,0.0,0.000039,0.0,0.0,0.0
+__isoc99_fscanf,libc-2.12.so,0.010010,0.010010,0.0,0.0,0.0,0.0,0.020563,0.0,0.0,0.0
+fprintf,libc-2.12.so,0.009990,0.0,0.009990,0.0,0.0,0.0,0.000034,0.0,0.0,0.0
+main,pardiso_sky.x,,,,,,,0.001216,,,
