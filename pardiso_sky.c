@@ -65,7 +65,8 @@ int load (double *pq, int *pjcode);
 // Stiffness functions:
 void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss);
 void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss, int *pia, int *pja);
+    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss, 
+	int *pkht, int *pia, int *pja);
 
 // Internal force vector function:
 void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
@@ -190,9 +191,12 @@ int main (void)
 	//csr arrays, allocated later
     MKL_INT n_MKL=neq;
     
-    double* a; //array of values
-    MKL_INT* ia; //array of row addresses
-    MKL_INT* ja; // 
+    double a[lss]; //array of values
+   // MKL_INT* ia; //array of row addresses
+   // MKL_INT* ja; // 
+    int ia[neq+1];
+    int ja[lss];
+	
     int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
     int csrflag = 0; //flag taht indicates whether src indices were intialized
 
@@ -333,7 +337,7 @@ int main (void)
             }
 	    t0 = omp_get_wtime();
             // Pass control to stiff function
-            stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
+            stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss, kht, ia, ja);
             t1 = omp_get_wtime();
 	    stifftimer = stifftimer + (t1-t0);
 	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
@@ -778,7 +782,8 @@ void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss)
 /* This function computes the generalized tangent stiffness matrix and stores it as an
    array */
 void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss)
+    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss,
+	int *pkht, int *pia, int *pja)
 {
     // Initialize function variables
     int i, n, je, j, ie, k, L, count;

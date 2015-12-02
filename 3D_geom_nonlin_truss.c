@@ -4,7 +4,7 @@
 #include <omp.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "7elementschain.txt"
+#define INPUT "9999elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*

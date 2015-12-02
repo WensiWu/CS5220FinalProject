@@ -13,25 +13,17 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-vec pardiso clean realclean
+.PHONY: exe exe-vec pardiso pardisosky clean realclean
 
 
 # === Executables
 
 exe: 3D_geom_nonlin_truss.x
 
-exe-vec: 3D_geom_nonlin_truss_vec.x
-
 3D_geom_nonlin_truss.x: 3D_geom_nonlin_truss.o 
 	$(CC) $(OMP_CFLAGS) $^ -o $@
 
-3D_geom_nonlin_truss_vec.x: 3D_geom_nonlin_truss_vec.o
-	$(CC) $(OMP_CFLAGS) $^ -o $@
-
 3D_geom_nonlin_truss.o: 3D_geom_nonlin_truss.c
-	$(CC) -c $(OMP_CFLAGS) $<
-
-3D_geom_nonlin_truss_vec.o: 3D_geom_nonlin_truss_vec.c
 	$(CC) -c $(OMP_CFLAGS) $<
 
 %.o: %.c
@@ -60,6 +52,14 @@ pardisotest.x: pardiso_sym_c.o
 
 pardiso_sym_c.o: pardiso_sym_c.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(INCMKL) $< 
+
+pardisosky: pardiso_sky.x
+	
+pardiso_sky.x: pardiso_sky.o
+	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+
+pardiso_sky.o: pardiso_sky.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 
 .PHONY: maqao-cqa maqao-perf scan-build vtune-report
