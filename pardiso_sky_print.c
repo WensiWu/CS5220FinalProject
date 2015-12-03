@@ -346,9 +346,14 @@ int main (void)
 	    stifftimer = stifftimer + (t1-t0);
 	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
 	    // changes indexing to full, and sets size of src
-	    t0 = omp_get_wtime();
-	    //sky_to_full(neq, lss, csrsize, full, ss, maxa);
+	   
+		// print stiffness matrix in skyline:
+            write_array_double("asky",lss,ss);
+	    write_array_int("maxa", neq+1,maxa);
 
+	    t0 = omp_get_wtime();
+
+	   
             count = 0;
             n = 0;
             for (i = 0; i < neq; ++i)
@@ -363,8 +368,8 @@ int main (void)
                 ++ count;
             }
 		
-	    //printf("Number of non zeros:%d \n",*csrsize);
-        //    full_to_csr(neq,full,a, ia, ja);
+
+
 	    // Solve the system for incremental displacements
 	    t1 = omp_get_wtime();
 		// write matrix to file
