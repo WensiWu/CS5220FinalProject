@@ -495,9 +495,9 @@ int main (void)
             test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
 	
             itecnt ++; // Advance solution counter
-	    free(a);
-	    free(ia);
-	    free(ja);
+	 //   free(a);
+	 //   free(ia);
+	 //   free(ja);
         } while (inconv != 0 && itecnt <= itemax);
 
         // Store generalized internal force vector from current configuration

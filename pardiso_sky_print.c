@@ -349,9 +349,6 @@ int main (void)
 	    t0 = omp_get_wtime();
 	    //sky_to_full(neq, lss, csrsize, full, ss, maxa);
 
-	    //a = (double*)malloc((*csrsize)*sizeof(double));
-        //   ja = (MKL_INT*)malloc((*csrsize)*sizeof(MKL_INT));
-	    //ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
             count = 0;
             n = 0;
             for (i = 0; i < neq; ++i)
@@ -372,9 +369,9 @@ int main (void)
 	    t1 = omp_get_wtime();
 		// write matrix to file
 
-	   // write_array_double("acsr", lss, a);
-	    //write_array_int("ia", neq + 1, ia);
-	    //write_array_int("ja", lss, ja);
+	    write_array_double("acsr", lss, a);
+	    write_array_int("ia", neq + 1, ia);
+	    write_array_int("ja", lss, ja);
 
 	    indextimer = indextimer + (t1-t0);
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
@@ -504,9 +501,9 @@ int main (void)
             test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
 	
             itecnt ++; // Advance solution counter
-	    free(a);
-	    free(ia);
-	    free(ja);
+	   // free(a);
+	  //  free(ia);
+	 //   free(ja);
         } while (inconv != 0 && itecnt <= itemax);
 
         // Store generalized internal force vector from current configuration
