@@ -13,7 +13,7 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-vec pardiso pardisosky clean realclean
+.PHONY: exe exe-vec pardiso  pardisoskyprint pardisosky clean realclean
 
 
 # === Executables
@@ -70,6 +70,15 @@ pardiso_sky.x: pardiso_sky.o
 	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
 pardiso_sky.o: pardiso_sky.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
+
+
+pardisoskyprint: pardiso_sky_print.x
+	
+pardiso_sky_print.x: pardiso_sky_print.o
+	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+
+pardiso_sky_print.o: pardiso_sky_print.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 

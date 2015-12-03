@@ -4,7 +4,7 @@
 #include <omp.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "9999elementschain.txt"
+#define INPUT "9999elementschainrandom.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -236,11 +236,12 @@ int main (void)
         forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
 
         itecnt = 1;  // Re-initialize iteration counter at the start of each increment
-
+	
         /* Start of each equilibrium iteration within load increment; iterations will
            continue until convergence is reached or iteration count exceeds user
            specified maximum */
         do {
+	    //printf("iteration count: %d \n", itecnt);
             // Compute residual force vector for use in evaluating displacement increment
             for (i = 0; i <= neq - 1; ++i) {
                 r[i] = qtot[i] - f[i];
