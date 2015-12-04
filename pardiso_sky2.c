@@ -394,6 +394,30 @@ int main (void)
                 ++ count;
             }
 
+<<<<<<< HEAD
+=======
+		
+	    //printf("Number of non zeros:%d \n",*csrsize);
+        //    full_to_csr(neq,full,a, ia, ja);
+	    // Solve the system for incremental displacements
+	    t1 = omp_get_wtime();
+	    indextimer = indextimer + (t1-t0);
+	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
+        
+
+
+		// write arrays:
+	    write_array_double("acsr", lss, a);
+	    write_array_int("ia", neq+1, ia);
+	    write_array_int("ja", lss,ja);
+
+	    write_array_double("asky", lss, ss);
+	    write_array_int("maxa", neq+1, maxa);
+
+
+
+
+>>>>>>> 6c52ef58aff359d0d397835c898db9a4f91becf8
 
 	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
