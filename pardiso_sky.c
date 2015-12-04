@@ -369,6 +369,17 @@ int main (void)
 	    t1 = omp_get_wtime();
 	    indextimer = indextimer + (t1-t0);
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
+
+		// write arrays:
+	    write_array_double("acsr", lss, a);
+	    write_array_int("ia", neq+1, ia);
+	    write_array_int("ja", lss,ja);
+
+	    write_array_double("asky", lss, ss);
+	    write_array_int("maxa", neq+1, maxa);
+
+
+
             if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
                 dd[0] = r[0] / ss[0];
