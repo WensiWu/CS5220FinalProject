@@ -392,24 +392,25 @@ int main (void)
 		/* .. Reordering and Symbolic Factorization. This step also allocates */
 		/* all memory that is necessary for the factorization. */
 		/* -------------------------------------------------------------------- */
-		phase = 11;
+		//phase = 11;
+		phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 	
 
-    		if ( error != 0 )
+    		/*if ( error != 0 )
     		{
         		printf ("\nERROR during symbolic factorization: %d", error);
         		exit (1);
     		}
     		printf ("\nReordering completed ... ");
     		printf ("\nNumber of nonzeros in factors = %d", iparm[17]);
-    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);
+    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);*/
 		/* -------------------------------------------------------------------- */
 		/* .. Numerical factorization. */
 		/* -------------------------------------------------------------------- */
  
-		   phase = 22;
+		  /* phase = 22;
     		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
            	  &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -421,10 +422,10 @@ int main (void)
   			}
  		
 		phase = 33;
-   		iparm[7] = 2;         /* Max numbers of iterative refinement steps. */
+   		iparm[7] = 2;          Max numbers of iterative refinement steps. */
     		/* Set right hand side to one. */
-	        PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
-            	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
+	      /*  PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
+            	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error); */
 
 
 		 if ( error != 0 )

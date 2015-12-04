@@ -13,7 +13,7 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-vec pardiso  pardisoskyprint pardisosky clean realclean
+.PHONY: exe exe-vec pardiso  pardisoskyprint pardisosky pardisosky2 clean realclean
 
 
 # === Executables
@@ -80,6 +80,15 @@ pardiso_sky_print.x: pardiso_sky_print.o
 
 pardiso_sky_print.o: pardiso_sky_print.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
+
+pardisosky2: pardiso_sky2.x
+	
+pardiso_sky2.x: pardiso_sky2.o
+	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+
+pardiso_sky2.o: pardiso_sky2.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
+
 
 
 .PHONY: maqao-cqa maqao-perf scan-build vtune-report
