@@ -2,9 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
-
+#include<write_array.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
+<<<<<<< HEAD
 #define INPUT "50pyramid.txt"
+=======
+#define INPUT "200pyramid.txt"
+>>>>>>> 0a2f686dfd7d8972ce1265cc1cb155572ae0a523
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
