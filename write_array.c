@@ -1,4 +1,5 @@
 #include<stdio.h>
+void main {}
 
 void write_array_double(const char* fname,int n,  double* a)
 {

@@ -18,7 +18,7 @@ include Makefile.in.$(PLATFORM)
 
 # === Executables
 
-exe: 3D_geom_nonlin_truss.x
+exe: 3D_geom_nonlin_truss.x write_array.h
 
 3D_geom_nonlin_truss.x: 3D_geom_nonlin_truss.o 
 	$(CC) $(OMP_CFLAGS) $^ -o $@
@@ -88,6 +88,10 @@ pardiso_sky2.x: pardiso_sky2.o
 
 pardiso_sky2.o: pardiso_sky2.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
+
+
+
+
 
 
 

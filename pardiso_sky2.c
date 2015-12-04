@@ -4,8 +4,9 @@
 #include <math.h>
 #include <omp.h>
 #include <mkl.h>
+
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "50pyramid.txt"
+#define INPUT "200pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -191,11 +192,11 @@ int main (void)
 	//csr arrays, allocated later
     MKL_INT n_MKL=neq;
     
-    double a[lss]; //array of values
+    double* a= (double *)malloc(lss*sizeof(double)); //array of values
    // MKL_INT* ia; //array of row addresses
    // MKL_INT* ja; // 
     int ia[neq+1];
-    int ja[lss];
+    int* ja= (int*)malloc(lss*sizeof(int));
 	
     int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
     int csrflag = 0; //flag taht indicates whether src indices were intialized
@@ -393,7 +394,7 @@ int main (void)
 		/* all memory that is necessary for the factorization. */
 		/* -------------------------------------------------------------------- */
 		//phase = 11;
-		phase = 23;
+		phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
 	
