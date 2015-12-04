@@ -393,9 +393,9 @@ int main (void)
 		/* all memory that is necessary for the factorization. */
 		/* -------------------------------------------------------------------- */
 		//phase = 11;
-		phase = 13;
+		phase = 23;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
-             	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
+             	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
 	
 
     		/*if ( error != 0 )
