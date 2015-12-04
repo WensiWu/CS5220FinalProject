@@ -89,7 +89,12 @@ void sky_to_full(int dim, int skysize, int* srcsize, double *full, double *value
 void full_to_csr(int size, double *full, double *a, int *ia
                  , int* ja);
 
+//write to file methods
+void write_array_double(const char* fname,int n,  double* a);
 
+void write_array_int(const char* fname,int n,  int* a);				 
+				 
+				 
 int main (void)
 {
     // Open I/O for business!
@@ -1198,6 +1203,32 @@ void full_to_csr(int dim, // dimension of matrix
 		ia[i+1]=count+ base_indexing;				
 	}		
 
+}
+
+void write_array_double(const char* fname,int n,  double* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%g ", a[i]);
+    }
+    fclose(fp);
+}
+
+void write_array_int(const char* fname, int n,  int* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%d ", a[i]);
+    }
+    fclose(fp);
 }
 
 

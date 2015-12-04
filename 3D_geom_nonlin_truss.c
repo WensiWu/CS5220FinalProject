@@ -79,6 +79,12 @@ void test (double *pf, double *pfp, double *pqtot, double *pdd, double *pfpi,
 void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
     double *pelong, double *peleng, double *pdeflen, int *pminc, int *pjcode);
 
+void write_array_double(const char* fname,int n,  double* a);
+
+void write_array_int(const char* fname,int n,  int* a);	
+	
+	
+	
 int main (void)
 {   double t0=omp_get_wtime();
     // Open I/O for business!
@@ -932,3 +938,29 @@ void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
         *(pc3+i) = el3 / (*(pdeflen+i));
     }
 }
+void write_array_double(const char* fname,int n,  double* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%g ", a[i]);
+    }
+    fclose(fp);
+}
+
+void write_array_int(const char* fname, int n,  int* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%d ", a[i]);
+    }
+    fclose(fp);
+}
+
