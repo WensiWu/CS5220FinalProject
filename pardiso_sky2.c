@@ -203,8 +203,8 @@ int main (void)
     int ia[neq+1];
     int* ja= (int*)malloc(lss*sizeof(int));
 	
-    int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
-    int csrflag = 0; //flag taht indicates whether src indices were intialized
+   // int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
+   // int csrflag = 0; //flag taht indicates whether src indices were intialized
 
 
 	// Define Pardiso variables
@@ -215,12 +215,14 @@ int main (void)
   
  
     MKL_INT nrhs = 1;     /* Number of right hand sides. */
+   // MKL_CHAR *var;
     /* Internal solver memory pointer pt, */
     /* 32-bit: int pt[64]; 64-bit: long int pt[64] */
     /* or void *pt[64] should be OK on both architectures */
     void *pt[64];
     /* Pardiso control parameters. */
     MKL_INT iparm[64];
+   // MKL_DOUBLE dparm[64];
     MKL_INT maxfct, mnum, phase, error, msglvl;
     /* Auxiliary variables. */
 
@@ -229,33 +231,50 @@ int main (void)
 /* -------------------------------------------------------------------- */
 /* .. Setup Pardiso control parameters. */
 /* -------------------------------------------------------------------- */
+ 
+/*  var = getenv("OMP_NUM_THREADS");
+   if (var != NULL)
+	sscanf(var, "%d", &num_procs);
+   else {
+	printf("Set enviroment OMP_NUM_THREADS to 1");
+	exit(1);
+	}*/
+  
+//   set OMP_NUM_THREADS = 4;
     for ( i = 0; i < 64; i++ )
     {
         iparm[i] = 0;
     }
     iparm[0] = 1;         /* No solver default */
-    iparm[1] = 2;         /* Fill-in reordering from METIS */
-    iparm[3] = 0;         /* No iterative-direct algorithm */
-    iparm[4] = 0;         /* No user fill-in reducing permutation */
-    iparm[5] = 0;         /* Write solution into x */
-    iparm[6] = 0;         /* Not in use */
-    iparm[7] = 2;         /* Max numbers of iterative refinement steps */
+    iparm[1] = 0;         /* Fill-in reordering from METIS */
+    iparm[2] = 1; /*number of processors*/
+    iparm[3] = 0;         /* do not use CGS*/
+    iparm[4] = 0;         /* do not use user perm */
+    iparm[5] = 0;         /* write solution to X*/
+   // iparm[6] = 0;         /* # of iternative refinement steps */
+    iparm[7] = 2;         /* max  interative */
     iparm[8] = 0;         /* Not in use */
     iparm[9] = 13;        /* Perturb the pivot elements with 1E-13 */
-    iparm[10] = 1;        /* Use nonsymmetric permutation and scaling MPS */
-    iparm[11] = 0;        /* Not in use */
+    iparm[10] = 0;        /* scaling vector */
+    iparm[11] = 0;        /* don not solve with transpose matrix */
     iparm[12] = 0;        /* Maximum weighted matching algorithm is switched-off (default for symmetric). Try iparm[12] = 1 in case of inappropriate accuracy */
-    iparm[13] = 0;        /* Output: Number of perturbed pivots */
-    iparm[14] = 0;        /* Not in use */
-    iparm[15] = 0;        /* Not in use */
-    iparm[16] = 0;        /* Not in use */
-    iparm[17] = -1;       /* Output: Number of nonzeros in the factor LU */
-    iparm[18] = -1;       /* Output: Mflops for LU factorization */
-    iparm[19] = 0;        /* Output: Numbers of CG Iterations */
+   // iparm[13] = 0;        /* Output: Number of perturbed pivots */
+   // iparm[14] = 0;        /* Not in use */
+   // iparm[15] = 0;        /* Not in use */
+   // iparm[16] = 0;        /* Not in use */
+   // iparm[17] = -1;       /* Output: Number of nonzeros in the factor LU */
+   // iparm[18] = 0;       /* Output: Mflops for LU factorization */
+   // iparm[19] = 0;        /* Output: Numbers of CG Iterations */
+    iparm[23] = 1; 	/*no parallel numberial factorizaiton*/
+    iparm[24] = 0; 	   /*forward and barckward solve*/
+    iparm[29] = 80; 	 /*size of the supernodes*/
+    iparm[51] = 1;	/*number of compute nodes*/
+    iparm[33] = 1; 	/* solution independent on the number of processors*/
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
     msglvl = 0;           /* Print statistical information in file */
     error = 0;            /* Initialize error flag */
+   // solver = 0;
 /* -------------------------------------------------------------------- */
 /* .. Initialize the internal solver memory pointer. This is only */
 /* necessary for the FIRST call of the PARDISO solver. */
@@ -265,8 +284,7 @@ int main (void)
 	pt[i]=0;
     }
    
-
-
+  // pardisoinit (pt, &mtype, &solver, iparm, dparm, &error);
 
    // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
@@ -354,7 +372,15 @@ int main (void)
 	    //a = (double*)malloc((*csrsize)*sizeof(double));
         //   ja = (MKL_INT*)malloc((*csrsize)*sizeof(MKL_INT));
 	    //ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
-            count = 0;
+         
+	    //printf("Number of non zeros:%d \n",*csrsize);
+        //    full_to_csr(neq,full,a, ia, ja);
+	    // Solve the system for incremental displacements
+	    t1 = omp_get_wtime();
+	    indextimer = indextimer + (t1-t0);
+	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
+            
+	    count = 0;
             n = 0;
             for (i = 0; i < neq; ++i)
             {
@@ -368,14 +394,8 @@ int main (void)
                 ++ count;
             }
 
-		
-	    //printf("Number of non zeros:%d \n",*csrsize);
-        //    full_to_csr(neq,full,a, ia, ja);
-	    // Solve the system for incremental displacements
-	    t1 = omp_get_wtime();
-	    indextimer = indextimer + (t1-t0);
-	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
-            if (lss == 1) {
+
+	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
                 dd[0] = r[0] / ss[0];
             } else {
@@ -398,25 +418,25 @@ int main (void)
 		/* .. Reordering and Symbolic Factorization. This step also allocates */
 		/* all memory that is necessary for the factorization. */
 		/* -------------------------------------------------------------------- */
-		//phase = 11;
-		phase = 13;
+		phase = 11;
+		//phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
 	
 
-    		/*if ( error != 0 )
+    		if ( error != 0 )
     		{
         		printf ("\nERROR during symbolic factorization: %d", error);
         		exit (1);
     		}
     		printf ("\nReordering completed ... ");
     		printf ("\nNumber of nonzeros in factors = %d", iparm[17]);
-    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);*/
+    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);
 		/* -------------------------------------------------------------------- */
 		/* .. Numerical factorization. */
 		/* -------------------------------------------------------------------- */
  
-		  /* phase = 22;
+		  phase = 22;
     		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
            	  &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -428,10 +448,10 @@ int main (void)
   			}
  		
 		phase = 33;
-   		iparm[7] = 2;          Max numbers of iterative refinement steps. */
+   		iparm[7] = 2;         /* Max numbers of iterative refinement steps. */
     		/* Set right hand side to one. */
-	      /*  PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
-            	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error); */
+	        PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
+            	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
 
 
 		 if ( error != 0 )
