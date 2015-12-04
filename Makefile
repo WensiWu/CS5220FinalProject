@@ -106,7 +106,7 @@ scan-build:
 	  scan-build -v --use-analyzer=/share/apps/llvm-3.7.0/bin/clang make )
 
 vtune-report:
-	amplxe-cl -R hotspots -report-output pardisoSky.csv -format csv -csv-delimiter comma
+	amplxe-cl -R hotspots -report-output vtune.csv -format csv -csv-delimiter comma
 #	
 #	amplxe-cl -R hotspots -report-output truss.csv -format csv -csv-delimiter comma
 #	amplxe-cl -R hotspots -report-output pardisoSky.csv -format csv -csv-delimiter comma
@@ -117,4 +117,4 @@ clean:
 	rm -f *.o
 
 realclean: clean
-	rm -f 3D_geom_nonlin_truss.x pardiso3.x pardiso_sky.x
+	rm -f 3D_geom_nonlin_truss.x pardiso3.x pardiso_sky.x pardiso_sky2.x

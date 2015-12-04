@@ -1,0 +1,30 @@
+Function,Module,CPU Time,Spin Time,Overhead Time
+[Outside any known module],[Unknown],0.018000,0.0,0.0
+[MKL PARDISO]@invs_perm_mod_pardiso,libmkl_sequential.so,0.004000,0.0,0.0
+[MKL PARDISO]@metis_mmdupd,libmkl_core.so,0.003000,0.0,0.0
+_IO_vfscanf,libc-2.12.so,0.003000,0.0,0.0
+[MKL BLAS]@xdgemm,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL PARDISO]@blkldl_pardiso,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@etep_pardiso,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@lnnt_pardiso,libmkl_sequential.so,0.002000,0.0,0.0
+[MKL PARDISO]@metis_createcoarsegraphnomask,libmkl_core.so,0.002000,0.0,0.0
+do_lookup_x,ld-2.12.so,0.002000,0.0,0.0
+[MKL BLAS]@dgemm_dcopy_down4_ea,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemm_kernel_0,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemm_nocopy_anbt,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dtrsm_ker_run_a4_b8,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@xdaxpy,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL PARDISO]@kgjmerge,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@kmodjdl,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@ladj_mod_pardiso,libmkl_sequential.so,0.001000,0.0,0.0
+[MKL PARDISO]@ldindx_pardiso,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_compressgraph,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_computemaxnodegain,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_splitgraphorder,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@symfct_pardiso,libmkl_core.so,0.001000,0.0,0.0
+_IO_vfprintf,libc-2.12.so,0.001000,0.0,0.0
+____strtod_l_internal,libc-2.12.so,0.001000,0.0,0.0
+__mpn_mul_1,libc-2.12.so,0.001000,0.0,0.0
+__printf_fp,libc-2.12.so,0.001000,0.0,0.0
+check_match.12445,ld-2.12.so,0.001000,0.0,0.0
+stiff,pardiso_sky2.x,0.001000,0.0,0.0

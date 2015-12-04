@@ -1,0 +1,95 @@
+Function,Module,CPU Time,Spin Time,Overhead Time
+[MKL PARDISO]@scatt_pardiso,libmkl_core.so,0.117000,0.0,0.0
+[Outside any known module],[Unknown],0.088000,0.0,0.0
+[MKL PARDISO]@invs_perm_mod_pardiso,libmkl_sequential.so,0.070000,0.0,0.0
+[MKL PARDISO]@metis_mmdupd,libmkl_core.so,0.054000,0.0,0.0
+[MKL PARDISO]@kgjmerge,libmkl_core.so,0.052000,0.0,0.0
+[MKL BLAS]@dgemm_kernel_0,libmkl_avx2.so,0.050000,0.0,0.0
+[MKL PARDISO]@etep_pardiso,libmkl_core.so,0.046000,0.0,0.0
+[MKL BLAS]@dgemm_nocopy_anbt,libmkl_avx2.so,0.044000,0.0,0.0
+[MKL PARDISO]@lnnt_pardiso,libmkl_sequential.so,0.044000,0.0,0.0
+[MKL BLAS]@xdaxpy,libmkl_avx2.so,0.035000,0.0,0.0
+[MKL PARDISO]@metis_createcoarsegraphnomask,libmkl_core.so,0.027000,0.0,0.0
+[MKL PARDISO]@blkldl_pardiso,libmkl_core.so,0.026000,0.0,0.0
+[MKL PARDISO]@metis_compressgraph,libmkl_core.so,0.022000,0.0,0.0
+[MKL Sparse BLAS]@dcsr1nsunf__mvout_par,libmkl_avx2.so,0.022000,0.0,0.0
+[MKL PARDISO]@kgiqsort_pardiso,libmkl_core.so,0.020000,0.0,0.0
+[MKL PARDISO]@metis_mmdelm,libmkl_core.so,0.020000,0.0,0.0
+[MKL PARDISO]@ladj_mod_pardiso,libmkl_sequential.so,0.018000,0.0,0.0
+[MKL PARDISO]@metis_fm_2waynoderefine_onesided,libmkl_core.so,0.017000,0.0,0.0
+[MKL PARDISO]@piv,libmkl_core.so,0.017000,0.0,0.0
+[MKL PARDISO]@symfct_pardiso,libmkl_core.so,0.014000,0.0,0.0
+[MKL BLAS]@xdgemv,libmkl_avx2.so,0.011000,0.0,0.0
+[MKL BLAS]@dtrsm_ker_run_a4_b8,libmkl_avx2.so,0.010000,0.0,0.0
+[MKL PARDISO]@blkldlslvs1_pardiso,libmkl_core.so,0.010000,0.0,0.0
+[MKL PARDISO]@metis_pqueueupdateup,libmkl_core.so,0.010000,0.0,0.0
+[MKL PARDISO]@igtr_pardiso,libmkl_core.so,0.009000,0.0,0.0
+main,pardiso_sky.x,0.009000,0.0,0.0
+[MKL BLAS]@xdgemm,libmkl_avx2.so,0.008000,0.0,0.0
+[MKL PARDISO]@metis_splitgraphorder,libmkl_core.so,0.008000,0.0,0.0
+[MKL BLAS]@d_generic_fullacopybcopy,libmkl_avx2.so,0.007000,0.0,0.0
+[MKL PARDISO]@kmodjdl,libmkl_core.so,0.007000,0.0,0.0
+memcpy,libc-2.12.so,0.007000,0.0,0.0
+[MKL PARDISO]@metis_compute2waynodepartitionparams,libmkl_core.so,0.006000,0.0,0.0
+[MKL BLAS]@dger,libmkl_avx2.so,0.005000,0.0,0.0
+[MKL BLAS]@dtrsm_pst,libmkl_avx2.so,0.005000,0.0,0.0
+[MKL PARDISO]@metis_computemaxnodegain,libmkl_core.so,0.005000,0.0,0.0
+[MKL PARDISO]@metis_match_shem,libmkl_core.so,0.005000,0.0,0.0
+[MKL BLAS]@dtrsm_copya_a4,libmkl_avx2.so,0.004000,0.0,0.0
+[MKL PARDISO]@dgetf2_pardiso,libmkl_core.so,0.004000,0.0,0.0
+[MKL PARDISO]@metis_fm_2waynoderefine,libmkl_core.so,0.004000,0.0,0.0
+[MKL PARDISO]@pvclrr,libmkl_core.so,0.004000,0.0,0.0
+[MKL SERVICE]@allocate,libmkl_core.so,0.004000,0.0,0.0
+__printf_fp,libc-2.12.so,0.004000,0.0,0.0
+stiff,pardiso_sky.x,0.004000,0.0,0.0
+[MKL BLAS]@dgemm_dcopy_down12_ea,libmkl_avx2.so,0.003000,0.0,0.0
+[MKL BLAS]@xdgemm,libmkl_core.so,0.003000,0.0,0.0
+[MKL BLAS]@xdtrsm,libmkl_avx2.so,0.003000,0.0,0.0
+[MKL PARDISO]@metis_fm_2wayedgerefine,libmkl_core.so,0.003000,0.0,0.0
+[MKL PARDISO]@metis_pqueueupdate,libmkl_core.so,0.003000,0.0,0.0
+[MKL PARDISO]@reorder1_pardiso,libmkl_core.so,0.003000,0.0,0.0
+[MKL PARDISO]@reorder2_pardiso,libmkl_core.so,0.003000,0.0,0.0
+[MKL PARDISO]@sssfct_pardiso,libmkl_core.so,0.003000,0.0,0.0
+__intel_memset,pardiso_sky.x,0.003000,0.0,0.0
+[MKL BLAS]@dgemm_dcopy_down4_ea,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL BLAS]@dgemm_initialize_buffers,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL BLAS]@dgemm_nocopy,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL BLAS]@dtrsm_left_ker,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL BLAS]@xdswap,libmkl_avx2.so,0.002000,0.0,0.0
+[MKL PARDISO]@do_all_pardiso_fc,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@fnpmod_pardiso,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@metis_compute2waypartitionparams,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@metis_idxset,libmkl_core.so,0.002000,0.0,0.0
+[MKL PARDISO]@metis_match_rm,libmkl_core.so,0.002000,0.0,0.0
+[MKL SERVICE]@deallocate,libmkl_core.so,0.002000,0.0,0.0
+_IO_file_xsputn,libc-2.12.so,0.002000,0.0,0.0
+_IO_vfprintf,libc-2.12.so,0.002000,0.0,0.0
+__pthread_getspecific,libpthread-2.12.so,0.002000,0.002000,0.0
+do_lookup_x,ld-2.12.so,0.002000,0.0,0.0
+forces,pardiso_sky.x,0.002000,0.0,0.0
+[Import thunk mkl_blas_dtrsm],libmkl_sequential.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemm,libmkl_sequential.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemm_copyan,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemv,libmkl_sequential.so,0.001000,0.0,0.0
+[MKL BLAS]@dgemv,libmkl_sequential.so,0.001000,0.0,0.0
+[MKL BLAS]@dtrsm_left,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dtrsm_right,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@dtrsm_right_ker,libmkl_avx2.so,0.001000,0.0,0.0
+[MKL BLAS]@xdtrsm,libmkl_core.so,0.001000,0.0,0.0
+[MKL LAPACK]@dlaswp,libmkl_sequential.so,0.001000,0.0,0.0
+[MKL PARDISO]@fndspa_pardiso,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@luspxm_pardiso,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_change2cnumbering,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_change2fnumberingorder,libmkl_core.so,0.001000,0.0,0.0
+[MKL PARDISO]@metis_growbisection,libmkl_core.so,0.001000,0.0,0.0
+[MKL SERVICE]@free,libmkl_core.so,0.001000,0.0,0.0
+_IO_vfscanf,libc-2.12.so,0.001000,0.0,0.0
+__ieee754_log,libm-2.12.so,0.001000,0.0,0.0
+__mpn_divrem,libc-2.12.so,0.001000,0.0,0.0
+__mpn_rshift,libc-2.12.so,0.001000,0.0,0.0
+__strlen_sse2,libc-2.12.so,0.001000,0.0,0.0
+_dl_lookup_symbol_x,ld-2.12.so,0.001000,0.0,0.0
+_dl_relocate_object,ld-2.12.so,0.001000,0.0,0.0
+_itoa_word,libc-2.12.so,0.001000,0.0,0.0
+keyiqst,libmkl_core.so,0.001000,0.0,0.0
+strcmp,ld-2.12.so,0.001000,0.0,0.0
