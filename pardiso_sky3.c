@@ -7,7 +7,7 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "999elementschain.txt"
+#define INPUT "200pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -92,7 +92,7 @@ void write_array_double(const char* fname,int n,  double* a);
 void write_array_int(const char* fname,int n,  int* a);				 
 				 
 			 
-void skyline_to_csr2(int lss, int neq, double* ss, int* maxa, double** a, int** ia, int** ja);
+
 
 int main (void)
 {
@@ -351,14 +351,8 @@ int main (void)
 	    t0 = omp_get_wtime();
 	   
 
-	    if( csrflag==0){
-	    csrflag=1;
 
 	    skyline_to_csr(lss, neq, ss, maxa, &a, &ia , &ja); 
-	    }
-	    else{
-		    skyline_to_csr2(lss, neq, ss, maxa, &a, &ia , &ja); 
-		}		
 	// Solve the system for incremental displacements
 	    t1 = omp_get_wtime();
 	    indextimer = indextimer + (t1-t0);
@@ -1213,58 +1207,5 @@ void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** i
 
 
 }
-void skyline_to_csr2(int lss, int neq, double* ss, int* maxa, double** a, int** ia, int** ja){
-	//First figure out how many entires per column
-	int count=0;
-	int* row_count = (int *)calloc(neq,sizeof(int));
-	int* row_current_index = (int *)calloc(neq,sizeof(int));
-	int top_row=0;
-	int number_in_col=0;
-	int row_index;
-	for(int j = 0; j < neq; ++j){
-		number_in_col=maxa[j+1]-maxa[j];
-		top_row= j - number_in_col +1 ;
-		for( int i = 0 ; i < number_in_col ; ++i){
-			if (ss[maxa[j]-1+i]!=0){
-				row_index = top_row+i;
-				row_count[row_index]=row_count[row_index]+1;	
-				++count;
-	//			printf("rowindex: %d \n", row_index);
-			}
-		}
-	}
-	
-	*a = NULL; *ja = NULL; *ia=NULL;
-	*a = (double*)malloc((count)*sizeof(double));
-        *ja = (MKL_INT*)malloc((count)*sizeof(MKL_INT));
-	*ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
-
-	(*ia)[0] = 1;
-
-	for(int i = 1 ; i < neq+1; ++i){
-		(*ia)[i]=(*ia)[i-1]+ row_count[i-1];
-		//printf("ia: %d \n",(*ia)[i]);
-	}
-	
-
-	for(int j = 0; j < neq; ++j){
-		number_in_col=maxa[j+1]-maxa[j];
-		top_row= j - number_in_col +1 ;
-		for( int i = 0 ; i < number_in_col ; ++i){
-			if (ss[maxa[j]-1+i]!=0){
-				row_index = top_row+i;
-				
-				(*ja)[(*ia)[row_index]-1+row_current_index[row_index]]=j+1;
-	//			printf("index: %d \n", (*ia)[row_index]-1+row_current_index[row_index]);
-				(*a)[(*ia)[row_index]-1+row_current_index[row_index]]=ss[maxa[j]-1+i];
-	//			printf("value: %g \n", (*a)[(*ia)[row_index]-1+row_current_index[row_index]]);
-				row_current_index[row_index]=row_current_index[row_index]+1;	
-			}
-		}
-	}
-	
-
-}
-
 
 
