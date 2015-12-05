@@ -232,25 +232,26 @@ int main (void)
     {
         iparm[i] = 0;
     }
-    iparm[0] = 1;         /* No solver default */
-    iparm[1] = 2;         /* Fill-in reordering from METIS */
-    iparm[3] = 0;         /* No iterative-direct algorithm */
-    iparm[4] = 0;         /* No user fill-in reducing permutation */
-    iparm[5] = 0;         /* Write solution into x */
-    iparm[6] = 0;         /* Not in use */
-    iparm[7] = 2;         /* Max numbers of iterative refinement steps */
-    iparm[8] = 0;         /* Not in use */
-    iparm[9] = 13;        /* Perturb the pivot elements with 1E-13 */
-    iparm[10] = 1;        /* Use nonsymmetric permutation and scaling MPS */
-    iparm[11] = 0;        /* Not in use */
-    iparm[12] = 0;        /* Maximum weighted matching algorithm is switched-off (default for symmetric). Try iparm[12] = 1 in case of inappropriate accuracy */
-    iparm[13] = 0;        /* Output: Number of perturbed pivots */
-    iparm[14] = 0;        /* Not in use */
-    iparm[15] = 0;        /* Not in use */
-    iparm[16] = 0;        /* Not in use */
-    iparm[17] = -1;       /* Output: Number of nonzeros in the factor LU */
-    iparm[18] = -1;       /* Output: Mflops for LU factorization */
-    iparm[19] = 0;        /* Output: Numbers of CG Iterations */
+  //  iparm[0] = 0;         /* No solver default */
+ //   iparm[1] = 2;         /* Fill-in reordering from METIS */
+ //   iparm[3] = 0;         /* No iterative-direct algorithm */
+   // iparm[4] = 0;         /* No user fill-in reducing permutation */
+   // iparm[5] = 0;         /* Write solution into x */
+    //iparm[6] = 0;         /* Not in use */
+    //iparm[7] = 2;         /* Max numbers of iterative refinement steps */
+    //iparm[8] = 0;         /* Not in use */
+    //iparm[9] = 13;        /* Perturb the pivot elements with 1E-13 */
+    //iparm[10] = 1;        /* Use nonsymmetric permutation and scaling MPS */
+    //iparm[11] = 0;        /* Not in use */
+    //iparm[12] = 0;        /* Maximum weighted matching algorithm is switched-off (default for symmetric). Try iparm[12] = 1 in case of inappropriate accuracy */
+    //iparm[13] = 0;        /* Output: Number of perturbed pivots */
+    //iparm[14] = 0;        /* Not in use */
+    //iparm[15] = 0;        /* Not in use */
+    //iparm[16] = 0;        /* Not in use */
+    //iparm[17] = -1;       /* Output: Number of nonzeros in the factor LU */
+    //iparm[18] = -1;       /* Output: Mflops for LU factorization */
+    //iparm[19] = 0;        /* Output: Numbers of CG Iterations */
+    //iparm[27]=1;
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
     msglvl = 0;           /* Print statistical information in file */
@@ -264,7 +265,7 @@ int main (void)
 	pt[i]=0;
     }
    
-
+    //pardisoinit(pt,&mtype, iparm);
 
 
    // Pass control to prop function
@@ -359,7 +360,7 @@ int main (void)
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
            
 
-	    if ( csrflag ==1){
+	    if ( csrflag ==0){
 		// write arrays:
 	    write_array_double("acsr", ia[neq]-1, a);
 	    write_array_int("ia", neq+1, ia);
@@ -369,7 +370,7 @@ int main (void)
 	    write_array_int("maxa", neq+1, maxa);
 	    
 	    }
-	    ++csrflag;
+	    //++csrflag;
             printf("length of csr array: %d, done writing \n", ia[neq]-1);
  	    
 
