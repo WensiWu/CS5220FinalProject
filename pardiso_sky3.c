@@ -1196,7 +1196,7 @@ void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** i
 			if (ss[maxa[j]-1+i]!=0){
 				row_index = top_row+i;
 				
-				(*ja)[(*ia)[row_index]-1+row_current_index[row_index]]=j;
+				(*ja)[(*ia)[row_index]-1+row_current_index[row_index]]=j+1;
 				printf("index: %d \n", (*ia)[row_index]-1+row_current_index[row_index]);
 				(*a)[(*ia)[row_index]-1+row_current_index[row_index]]=ss[maxa[j]-1+i];
 				printf("value: %g \n", (*a)[(*ia)[row_index]-1+row_current_index[row_index]]);
