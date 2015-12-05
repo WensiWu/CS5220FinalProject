@@ -359,7 +359,7 @@ int main (void)
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
            
 
-	    if ( csrflag ==0){
+	    if ( csrflag ==1){
 		// write arrays:
 	    write_array_double("acsr", ia[neq]-1, a);
 	    write_array_int("ia", neq+1, ia);
@@ -367,8 +367,9 @@ int main (void)
 
 	    write_array_double("asky", lss, ss);
 	    write_array_int("maxa", neq+1, maxa);
-	    csrflag=1;
+	    
 	    }
+	    ++csrflag;
             printf("length of csr array: %d, done writing \n", ia[neq]-1);
  	    
 
