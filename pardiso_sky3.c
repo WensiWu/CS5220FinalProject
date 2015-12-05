@@ -91,7 +91,9 @@ void write_array_double(const char* fname,int n,  double* a);
 
 void write_array_int(const char* fname,int n,  int* a);				 
 				 
-				 
+			 
+void skyline_to_csr2(int lss, int neq, double* ss, int* maxa, double** a, int** ia, int** ja);
+
 int main (void)
 {
     // Open I/O for business!
@@ -200,7 +202,7 @@ int main (void)
     int* ia;
     int* ja;
 	
-    int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
+   
     int csrflag = 0; //flag taht indicates whether src indices were intialized
 
 
@@ -324,8 +326,7 @@ int main (void)
             fp[i] = f[i];
             f[i] = 0;
         }
-
-        // Pass control to forces function
+       // Pass control to forces function
         forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
 
         itecnt = 1;  // Re-initialize iteration counter at the start of each increment
@@ -334,32 +335,35 @@ int main (void)
            continue until convergence is reached or iteration count exceeds user
            specified maximum */
         do {
-            // Compute residual force vector for use in evaluating displacement increment
+
+           // Compute residual force vector for use in evaluating displacement increment
             for (i = 0; i <= neq - 1; ++i) {
                 r[i] = qtot[i] - f[i];
             }
 	    t0 = omp_get_wtime();
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-            t1 = omp_get_wtime();
+         
+	    t1 = omp_get_wtime();
 	    stifftimer = stifftimer + (t1-t0);
 	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
 	    // changes indexing to full, and sets size of src
 	    t0 = omp_get_wtime();
-	    skyline_to_csr(lss, neq, ss, maxa, &a, &ia , &ja);
+	   
 
-	    for(int i=0; i < neq + 1; ++i){
+	    if( csrflag==0){
+	    csrflag=1;
 
-		printf("at i = %d, ia = %d \n", i, ia[i]);
-	}
-
-	    //printf("Number of non zeros:%d \n",*csrsize);
-        //    full_to_csr(neq,full,a, ia, ja);
-	    // Solve the system for incremental displacements
+	    skyline_to_csr(lss, neq, ss, maxa, &a, &ia , &ja); 
+	    }
+	    else{
+		    skyline_to_csr2(lss, neq, ss, maxa, &a, &ia , &ja); 
+		}		
+	// Solve the system for incremental displacements
 	    t1 = omp_get_wtime();
 	    indextimer = indextimer + (t1-t0);
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
-        
+           
 
 
 		// write arrays:
@@ -371,7 +375,7 @@ int main (void)
 	    write_array_int("maxa", neq+1, maxa);
 	   
             printf("length of csr array: %d, done writing \n", ia[neq]-1);
- 	    exit(0);       
+ 	    
 
 	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
@@ -400,7 +404,7 @@ int main (void)
 		phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
-	
+
 
     		/*if ( error != 0 )
     		{
@@ -450,7 +454,7 @@ int main (void)
 		 t1 = omp_get_wtime();
 		 solvetimer = solvetimer+(t1-t0);
 		 printf("Total time spent on solving: %g \n", solvetimer);
-
+		
                 // Terminate program if errors encountered
                 if (errchk == 1) {
                     fprintf(ofp, "\n\nSolution failed\n");
@@ -500,9 +504,10 @@ int main (void)
             test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
 	
             itecnt ++; // Advance solution counter
-	    free(a);
-	    free(ia);
-	    free(ja);
+	   // free(a);
+	   // free(ia);
+	   // free(ja);
+	 
         } while (inconv != 0 && itecnt <= itemax);
 
         // Store generalized internal force vector from current configuration
@@ -1159,8 +1164,8 @@ void write_array_int(const char* fname, int n,  int* a)
 void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** ia, int** ja){
 	//First figure out how many entires per column
 	int count=0;
-	int* row_count = (int *)malloc(neq*sizeof(int));
-	int* row_current_index = (int *)malloc(neq*sizeof(int));
+	int* row_count = (int *)calloc(neq,sizeof(int));
+	int* row_current_index = (int *)calloc(neq,sizeof(int));
 	int top_row=0;
 	int number_in_col=0;
 	int row_index;
@@ -1172,7 +1177,7 @@ void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** i
 				row_index = top_row+i;
 				row_count[row_index]=row_count[row_index]+1;	
 				++count;
-				printf("rowindex: %d \n", row_index);
+	//			printf("rowindex: %d \n", row_index);
 			}
 		}
 	}
@@ -1185,7 +1190,7 @@ void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** i
 
 	for(int i = 1 ; i < neq+1; ++i){
 		(*ia)[i]=(*ia)[i-1]+ row_count[i-1];
-		printf("ia: %d \n",(*ia)[i]);
+	//	printf("ia: %d \n",(*ia)[i]);
 	}
 
 
@@ -1197,21 +1202,69 @@ void skyline_to_csr(int lss, int neq, double* ss, int* maxa, double** a, int** i
 				row_index = top_row+i;
 				
 				(*ja)[(*ia)[row_index]-1+row_current_index[row_index]]=j+1;
-				printf("index: %d \n", (*ia)[row_index]-1+row_current_index[row_index]);
+	//			printf("index: %d \n", (*ia)[row_index]-1+row_current_index[row_index]);
 				(*a)[(*ia)[row_index]-1+row_current_index[row_index]]=ss[maxa[j]-1+i];
-				printf("value: %g \n", (*a)[(*ia)[row_index]-1+row_current_index[row_index]]);
+	//			printf("value: %g \n", (*a)[(*ia)[row_index]-1+row_current_index[row_index]]);
 				row_current_index[row_index]=row_current_index[row_index]+1;	
 			}
 		}
 	}
 
-	    for(int i=0; i < neq + 1; ++i){
-
-		printf("at i = %d, ia = %d \n", i, (*ia)[i]);
-	}
-
 
 
 }
+void skyline_to_csr2(int lss, int neq, double* ss, int* maxa, double** a, int** ia, int** ja){
+	//First figure out how many entires per column
+	int count=0;
+	int* row_count = (int *)calloc(neq,sizeof(int));
+	int* row_current_index = (int *)calloc(neq,sizeof(int));
+	int top_row=0;
+	int number_in_col=0;
+	int row_index;
+	for(int j = 0; j < neq; ++j){
+		number_in_col=maxa[j+1]-maxa[j];
+		top_row= j - number_in_col +1 ;
+		for( int i = 0 ; i < number_in_col ; ++i){
+			if (ss[maxa[j]-1+i]!=0){
+				row_index = top_row+i;
+				row_count[row_index]=row_count[row_index]+1;	
+				++count;
+	//			printf("rowindex: %d \n", row_index);
+			}
+		}
+	}
+	
+	*a = NULL; *ja = NULL; *ia=NULL;
+	*a = (double*)malloc((count)*sizeof(double));
+        *ja = (MKL_INT*)malloc((count)*sizeof(MKL_INT));
+	*ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
+
+	(*ia)[0] = 1;
+
+	for(int i = 1 ; i < neq+1; ++i){
+		(*ia)[i]=(*ia)[i-1]+ row_count[i-1];
+		//printf("ia: %d \n",(*ia)[i]);
+	}
+	
+
+	for(int j = 0; j < neq; ++j){
+		number_in_col=maxa[j+1]-maxa[j];
+		top_row= j - number_in_col +1 ;
+		for( int i = 0 ; i < number_in_col ; ++i){
+			if (ss[maxa[j]-1+i]!=0){
+				row_index = top_row+i;
+				
+				(*ja)[(*ia)[row_index]-1+row_current_index[row_index]]=j+1;
+	//			printf("index: %d \n", (*ia)[row_index]-1+row_current_index[row_index]);
+				(*a)[(*ia)[row_index]-1+row_current_index[row_index]]=ss[maxa[j]-1+i];
+	//			printf("value: %g \n", (*a)[(*ia)[row_index]-1+row_current_index[row_index]]);
+				row_current_index[row_index]=row_current_index[row_index]+1;	
+			}
+		}
+	}
+	
+
+}
+
 
 
