@@ -258,7 +258,7 @@ int main (void)
 	    
 	    write_array_double("asky", lss, ss);
 	    write_array_int("maxa", neq+1, maxa);
-
+            write_array_double("r", neq, r);
 		// Solve the system for incremental displacements
             if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
@@ -266,7 +266,6 @@ int main (void)
             } else {
                 // Pass control to solve function
                 errchk = solve (ss, r, dd, maxa);
-            	write_array_double("r", neq, r);
 	   	write_array_double("dd", neq, dd);    
 	
                 // Terminate program if errors encountered
