@@ -135,7 +135,7 @@ int main (void)
     int itecnt, itemax;							// Iteration counter and max number of iterations
     int errchk;									// Error check variable on user defined functions
     int i;										// Counter variable
-
+    int csrflag=0;
     // Pass control to struc function
     errchk = struc(&jcode[0][0], &minc[0][0]);
 
@@ -255,10 +255,11 @@ int main (void)
 
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-	    
-	    write_array_double("asky", lss, ss);
-	    write_array_int("maxa", neq+1, maxa);
-            write_array_double("r", neq, r);
+	    if (csrflag==0){
+	    	write_array_double("asky", lss, ss);
+	    	write_array_int("maxa", neq+1, maxa);
+            	write_array_double("r", neq, r);
+	    }
 		// Solve the system for incremental displacements
             if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
@@ -266,8 +267,11 @@ int main (void)
             } else {
                 // Pass control to solve function
                 errchk = solve (ss, r, dd, maxa);
-	   	write_array_double("dd", neq, dd);    
 	
+	        if (csrflag==0){
+	   		write_array_double("dd", neq, dd);    
+	        }
+		++csrflag;
                 // Terminate program if errors encountered
                 if (errchk == 1) {
                     fprintf(ofp, "\n\nSolution failed\n");
