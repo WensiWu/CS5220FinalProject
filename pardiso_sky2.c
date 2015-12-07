@@ -6,7 +6,7 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "200pyramid.txt"
+#define INPUT "9999elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -393,10 +393,7 @@ int main (void)
                 }
                 ++ count;
             }
-
-<<<<<<< HEAD
-=======
-		
+	
 	    //printf("Number of non zeros:%d \n",*csrsize);
         //    full_to_csr(neq,full,a, ia, ja);
 	    // Solve the system for incremental displacements
@@ -415,9 +412,6 @@ int main (void)
 	    write_array_int("maxa", neq+1, maxa);
 
 
-
-
->>>>>>> 6c52ef58aff359d0d397835c898db9a4f91becf8
 
 	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
