@@ -247,6 +247,7 @@ int main (void)
            continue until convergence is reached or iteration count exceeds user
            specified maximum */
         do {
+	    printf("iteration: %d\n", itecnt);
 	    //printf("iteration count: %d \n", itecnt);
             // Compute residual force vector for use in evaluating displacement increment
             for (i = 0; i <= neq - 1; ++i) {
