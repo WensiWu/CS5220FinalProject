@@ -244,19 +244,19 @@ int main (void)
     {
         iparm[i] = 0;
     }
-    iparm[0] = 1;         /* No solver default */
-    iparm[1] = 0;         /* Fill-in reordering from METIS */
+    iparm[0] = 0;         /* No solver default */
+  // iparm[1] = 0;         /* Fill-in reordering from METIS */
     iparm[2] = 1; /*number of processors*/
-    iparm[3] = 0;         /* do not use CGS*/
-    iparm[4] = 0;         /* do not use user perm */
-    iparm[5] = 0;         /* write solution to X*/
+   // iparm[3] = 0;         /* do not use CGS*/
+   // iparm[4] = 0;         /* do not use user perm */
+   // iparm[5] = 0;         /* write solution to X*/
    // iparm[6] = 0;         /* # of iternative refinement steps */
     iparm[7] = 2;         /* max  interative */
-    iparm[8] = 0;         /* Not in use */
-    iparm[9] = 13;        /* Perturb the pivot elements with 1E-13 */
-    iparm[10] = 0;        /* scaling vector */
-    iparm[11] = 0;        /* don not solve with transpose matrix */
-    iparm[12] = 0;        /* Maximum weighted matching algorithm is switched-off (default for symmetric). Try iparm[12] = 1 in case of inappropriate accuracy */
+   // iparm[8] = 0;         /* Not in use */
+    iparm[9] = 8;        /* Perturb the pivot elements with 1E-13 */
+   // iparm[10] = 0;        /* scaling vector */
+   // iparm[11] = 0;        /* don not solve with transpose matrix */
+   // iparm[12] = 0;        /* Maximum weighted matching algorithm is switched-off (default for symmetric). Try iparm[12] = 1 in case of inappropriate accuracy */
    // iparm[13] = 0;        /* Output: Number of perturbed pivots */
    // iparm[14] = 0;        /* Not in use */
    // iparm[15] = 0;        /* Not in use */
@@ -265,7 +265,7 @@ int main (void)
    // iparm[18] = 0;       /* Output: Mflops for LU factorization */
    // iparm[19] = 0;        /* Output: Numbers of CG Iterations */
     iparm[23] = 1; 	/*no parallel numberial factorizaiton*/
-    iparm[24] = 0; 	   /*forward and barckward solve*/
+  //  iparm[24] = 0; 	   /*forward and barckward solve*/
     iparm[29] = 80; 	 /*size of the supernodes*/
     iparm[51] = 1;	/*number of compute nodes*/
     iparm[33] = 1; 	/* solution independent on the number of processors*/
@@ -489,7 +489,12 @@ int main (void)
     		/* Set right hand side to one. */
 	        PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
             	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
-
+		
+	   	/*printf("\tDD:\t");
+		for (i = 0; i <= neq - 1; ++i)
+		{
+			printf("%lf\t", dd[i]);
+		}*/
 
 		 if ( error != 0 )
 		 {
@@ -499,7 +504,39 @@ int main (void)
 	         printf ("\nSolve completed ... ");
  	         printf ("\nThe solution of the system is: ");
  
-  		/* clean up phase */
+  	            /* Update generalized nodal displacement vector, store generalized internal
+               force vector from previous iteration, and re-initialize generalized
+               internal force vector */
+            for (i = 0; i <= neq - 1; ++i) {
+                d[i] += dd[i];
+                fpi[i] = f[i];
+                f[i] = 0;
+            }
+
+            // Pass control to forces function
+            updatc (&x[0][0], dd, c1, c2, c3, elong, eleng, deflen, &minc[0][0],
+                &jcode[0][0]);
+
+            // Pass control to forces function
+            forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
+
+            if (itecnt == 1) {
+                // Compute internal energy from first iteration
+                intener1 = 0;
+            	for (i = 0; i <= neq - 1; ++i) {
+            		intener1 += dd[i] * (qtot[i] - fp[i]);
+            	}
+            }
+
+            // Pass control to test function
+           test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
+	
+            itecnt ++; // Advance solution counter
+	 //   free(a);
+	 //   free(ia);
+	 //   free(ja);
+	 //
+	/* clean up phase */
 	
 		 phase = -1;           /* Release internal memory. */
 	         PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
@@ -531,37 +568,7 @@ int main (void)
                 }
             }
 
-            /* Update generalized nodal displacement vector, store generalized internal
-               force vector from previous iteration, and re-initialize generalized
-               internal force vector */
-            for (i = 0; i <= neq - 1; ++i) {
-                d[i] += dd[i];
-                fpi[i] = f[i];
-                f[i] = 0;
-            }
 
-            // Pass control to forces function
-            updatc (&x[0][0], dd, c1, c2, c3, elong, eleng, deflen, &minc[0][0],
-                &jcode[0][0]);
-
-            // Pass control to forces function
-            forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
-
-            if (itecnt == 1) {
-                // Compute internal energy from first iteration
-                intener1 = 0;
-            	for (i = 0; i <= neq - 1; ++i) {
-            		intener1 += dd[i] * (qtot[i] - fp[i]);
-            	}
-            }
-
-            // Pass control to test function
-           test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
-	
-            itecnt ++; // Advance solution counter
-	 //   free(a);
-	 //   free(ia);
-	 //   free(ja);
         } while (inconv != 0 && itecnt <= itemax);
 
         // Store generalized internal force vector from current configuration
