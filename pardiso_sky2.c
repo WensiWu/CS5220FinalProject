@@ -6,11 +6,7 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-<<<<<<< HEAD
 #define INPUT "10pyramid.txt"
-=======
-#define INPUT "9999elementschain.txt"
->>>>>>> b1c24abe784fbb77d4e2c999c553cc2f4c75f1f9
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -417,10 +413,7 @@ int main (void)
 	    t1 = omp_get_wtime();
 	    indextimer = indextimer + (t1-t0);
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
-<<<<<<< HEAD
-       	
-=======
-            
+           
 	    count = 0;
             n = 0;
             for (i = 0; i < neq; ++i)
@@ -434,9 +427,7 @@ int main (void)
                 }
                 ++ count;
             }
-	
->>>>>>> b1c24abe784fbb77d4e2c999c553cc2f4c75f1f9
-	    //printf("Number of non zeros:%d \n",*csrsize);
+    //printf("Number of non zeros:%d \n",*csrsize);
         //    full_to_csr(neq,full,a, ia, ja);
 	    // Solve the system for incremental displacements
 	    t1 = omp_get_wtime();
@@ -453,11 +444,6 @@ int main (void)
 	    write_array_double("asky", lss, ss);
 	    write_array_int("maxa", neq+1, maxa);
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> b1c24abe784fbb77d4e2c999c553cc2f4c75f1f9
 	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
                 dd[0] = r[0] / ss[0];
