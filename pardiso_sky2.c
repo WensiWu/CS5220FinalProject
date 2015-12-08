@@ -6,7 +6,7 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "200pyramid.txt"
+#define INPUT "10pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -66,8 +66,7 @@ int load (double *pq, int *pjcode);
 // Stiffness functions:
 void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss);
 void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss, 
-	int *pkht, int *pia, int *pja);
+    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss);
 
 // Internal force vector function:
 void forces (double *pf, double *parea, double *pemod, double *pc1, double *pc2,
@@ -361,8 +360,43 @@ int main (void)
             }
 	    t0 = omp_get_wtime();
             // Pass control to stiff function
-            stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss, kht, ia, ja);
-            t1 = omp_get_wtime();
+            stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
+            int count=0;
+	    int i, j, k;
+	    double dummy[neq][neq];
+	    for (i = 0; i < neq; ++i){
+		for (j = 0; j < neq; ++j)
+		{
+		   dummy[i][j] = -1;
+		}
+	    } 
+	
+	    for (i = 0; i < neq; ++i){
+		for (j = 0; j <= *(kht + i); ++j)
+		{
+			dummy[i - j][i] = *(ss + *(maxa+i) + count - 1);  
+			++count;
+		} 
+
+	    }
+	
+	   *ia = 1;
+	   count = 0;
+	   for(i = 0 ; i < neq; ++i){
+		for (j = 0; j < neq; ++j){
+			if ( (dummy[i][j]) != -1)
+			{
+				*(ja + count) = j + 1;
+				*(a + count) = dummy [i][j]; 
+				++count;
+			}
+		}
+		*(ia+i+1) = count + 1;
+	//	printf("ia: %d \n",(*ia)[i]);
+	   }
+
+
+	    t1 = omp_get_wtime();
 	    stifftimer = stifftimer + (t1-t0);
 	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
 	    // changes indexing to full, and sets size of src
@@ -379,24 +413,7 @@ int main (void)
 	    t1 = omp_get_wtime();
 	    indextimer = indextimer + (t1-t0);
 	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
-            
-	    count = 0;
-            n = 0;
-            for (i = 0; i < neq; ++i)
-            {
-                k= *(ia+i+1) - *(ia+i);
-                for (j = 0; j< k; ++j)
-                {
-                    *( a + n) = *(ss + *(maxa+count+j) + j - 1);
-                    //fprintf(ofp, "%d: %lf\t", *(maxa+count+j) + j - 1,  *(a+n));
-                    ++n;
-                }
-                ++ count;
-            }
-
-<<<<<<< HEAD
-=======
-		
+       	
 	    //printf("Number of non zeros:%d \n",*csrsize);
         //    full_to_csr(neq,full,a, ia, ja);
 	    // Solve the system for incremental displacements
@@ -414,10 +431,6 @@ int main (void)
 	    write_array_double("asky", lss, ss);
 	    write_array_int("maxa", neq+1, maxa);
 
-
-
-
->>>>>>> 6c52ef58aff359d0d397835c898db9a4f91becf8
 
 	    if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
@@ -445,7 +458,7 @@ int main (void)
 		phase = 11;
 		//phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
-             	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
+             	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 	
 
     		if ( error != 0 )
@@ -543,7 +556,7 @@ int main (void)
             }
 
             // Pass control to test function
-            test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
+           test (f, fp, qtot, dd, fpi, &intener1, &inconv, &neq, &tolfor, &tolener);
 	
             itecnt ++; // Advance solution counter
 	 //   free(a);
@@ -833,8 +846,7 @@ void skylin (int *pkht, int *pmaxa, int *pmcode, int *plss)
 /* This function computes the generalized tangent stiffness matrix and stores it as an
    array */
 void stiff (double *pss, double *parea, double *pemod, double *peleng, double *pc1,
-    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss,
-	int *pkht, int *pia, int *pja)
+    double *pc2, double *pc3, double *pelong, int *pmaxa, int *pmcode, int *plss)
 {
     // Initialize function variables
     int i, n, je, j, ie, k, L, count;
@@ -913,8 +925,8 @@ void stiff (double *pss, double *parea, double *pemod, double *peleng, double *p
         }
     }
     
-    *pia=1;
-    for (i = 0; i<= neq - 1; ++i)
+ /*   *pia=1;
+    for (i = 0; i<= neq; ++i)
     {
         *(pia+i+1) = *(pia+i) + *(pkht+neq-i-1) + 1;
         
@@ -931,7 +943,7 @@ void stiff (double *pss, double *parea, double *pemod, double *peleng, double *p
             ++n;
         }
         ++count;
-    }
+    }*/
 
 }
 

@@ -4,7 +4,7 @@
 #include <omp.h>
 #include<mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "200pyramid.txt"
+#define INPUT "10pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
