@@ -4,11 +4,8 @@
 #include <omp.h>
 #include<mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-<<<<<<< HEAD
-#define INPUT "10pyramid.txt"
-=======
-#define INPUT "9999elementschain.txt"
->>>>>>> b1c24abe784fbb77d4e2c999c553cc2f4c75f1f9
+//#define INPUT "10pyramid.txt"
+#define INPUT "3elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
