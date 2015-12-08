@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amsthm,verbatim,amssymb,amsfonts,amscd, graphicx}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{url}
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+
+
+\graphicspath{{./times/}}
+\topmargin0.0cm
+\headheight0.0cm
+\headsep0.0cm
+\oddsidemargin0.0cm
+\textheight23.0cm
+\textwidth16.5cm
+\footskip1.0cm
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+
+\begin{document}
+\title{CS 5220\\ Final project - Computing Truss (?)}
+\author{Marc Aurele Gilles (mtg79)\\ Wensi Wu(382) }
+\maketitle
+
+\section{Introduction}
+
+
+\section{Problem Description}
+
+We are computing truss TADATADA - can probably copy paste things from earls notes
+
+
+\section{Numerical Method}
+
+The truss computing problem can be written in the form
+
+$$F_l(u)=0$$
+where u is the truss, and F is a system of $n$ non-linear equations, where n depends on the number of nodes, elements and degrees of freedom(?), and l is the maximum load factor.
+
+We solve this system of equation using a continuation method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. Each $F_l(u)=0$ equation is solved by a Newton method iteration.
+\\
+That is we repeatedly solve $F_l(u_{t+1}) \simeq F(u_t) + S(u_t)*u_{t+1} =0$, where $T(u_t)$ is the Jacobian matrix at $u_t$, which in this problem is the same as the Stiffness matrix.\\
+
+In other words, each iteration is a linear solve:
+$S(u_t)*u_{t+1}=-F(u_t)$.
+
+Most of the computation of this program is spent doing this linear solve. The stiffness matrix is very high dimensional for large structures, but also very sparse, a sparse solver is therefore needed.
+
+\section{Setup: generating input structures}
+
+As our objective is to speed up this computation, and conduct scaling studies, we need to be able to generate input structures of variable sizes.
+We generated two different type of input structures, a "chain" structure, and a "pyramid" structure.
+\\
+Here put drawings
+\\
+For each structure we declare the position, of each node, the position of each elements (as defined by a pair of nodes), the properties of each element (cross section area and ... ), and a load factor on each node.
+
+These two different structure give rise to different sparsity patterns in the stiffness matrix. The chain structure produces a strictly diagonally dominant structures, which isn't strictly the case for the pyramid structure.
+\\
+add plots of sparsity structure
+
+\section{Original code}
+
+\subsection{Skyline}
+
+\subsection{Timing of original code}
+
+\section{New code}
+
+\subsection{Pardiso}
+
+\subsection{Compressed sparse row}
+
+\section{Scaling studies}
+
+\section{Conclusion}
+
+\end{document}

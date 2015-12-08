@@ -4,7 +4,11 @@
 #include <omp.h>
 #include<mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
+<<<<<<< HEAD
 #define INPUT "10pyramid.txt"
+=======
+#define INPUT "9999elementschain.txt"
+>>>>>>> b1c24abe784fbb77d4e2c999c553cc2f4c75f1f9
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -256,7 +260,7 @@ int main (void)
 
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-	    if (csrflag==0){
+	    if (csrflag==1){
 	    	write_array_double("asky", lss, ss);
 	    	write_array_int("maxa", neq+1, maxa);
             	write_array_double("r", neq, r);
@@ -269,7 +273,7 @@ int main (void)
                 // Pass control to solve function
                 errchk = solve (ss, r, dd, maxa);
 	
-	        if (csrflag==0){
+	        if (csrflag==1){
 	   		write_array_double("dd", neq, dd);    
 	        }
 		++csrflag;
