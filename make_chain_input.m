@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-elements = 7; %number of elements: elements should be odd for a truss bridge
-=======
-elements = 999; %number of elements: elements should be odd for a truss bridge
->>>>>>> 354b09040b174e55214c322b3b97a9fdcf3e287b
+elements = 49999; %number of elements: elements should be odd for a truss bridge
 nodes=(elements+1)/2+1;  % number of nodes
+%nodes=3;
 filename = strcat(int2str(elements),'elementschain.txt');
 fileID=fopen(filename,'w');
 
@@ -20,7 +17,7 @@ end
 %truss members at the bottom
 rest= elements-diagonal;
 for i=1:rest
-   fprintf(fileID, '%d, %d\n', i, i+2);
+    fprintf(fileID, '%d, %d\n', i, i+2);
 end
 
 %truss members at the top
@@ -30,41 +27,28 @@ end
 %end
 
 %joint constraints
-%for i=1:nodes 
-%    if mod(i,2)==1
-%        for j=1:3
-%            fprintf(fileID,'%d, %d\n', i, j);
-%        end
-%    else 
-%        fprintf(fileID,'%d, %d\n', i, 3);
-%    end
-%end
-
-
-
 for i=1:nodes
-   if i==1
-	for j=1:3
-	   fprintf(fileID, '%d, %d\n', i, j);
-	end
-   end
-   if mod(i,2)==1
-	fprintf(fileID, '%d, %d\n', i, 2);
-   end
-   if i==nodes
-	for j=1:2:3
-	  fprintf(fileID, '%d, %d\n', i, j );
-	end
-   end
-end 
-
+   % if mod(i,2)==1
+     if i == 1
+        for j=1:3
+            fprintf(fileID,'%d, %d\n', i, j);
+        end
+     elseif i == nodes
+         for j=2:3
+             fprintf(fileID,'%d, %d\n', i, j);
+         end
+     else
+        fprintf(fileID,'%d, %d\n', i, 3);
+    end
+    
+end
 
 
 %done with constraint statement:
 fprintf(fileID,'0, 0\n');
 
 
-xoffset=5;
+xoffset=10;
 yoffset=2;
 for i=0:nodes-1
     xcoor=i*xoffset;
@@ -75,7 +59,7 @@ end
 
 % assigns material props to elements
 for i=1:elements
-    area = 1; 
+    area = 1;
     modulus = 29000;
     fprintf(fileID,'%d, %d\n', area, modulus); %% assign material props : area and modulus
 end
@@ -83,11 +67,12 @@ end
 % assigns load to even numbered node
 for i=1:nodes
     if mod(i,2)==0
-         load = 10;
-         fprintf(fileID,'%d, %d, %d\n', i, 2, -load);
+        load = 10;
+        fprintf(fileID,'%d, %d, %d\n', i, 2, -load);
+        %fprintf(fileID,'%d, %d, %d\n', i, 1, -load);
     end
 end
-%signals done with loading   
+%signals done with loading
 fprintf(fileID,'0, 0, 0\n');
-fprintf(fileID,'2, 0.1, 0.1 200 0.001, 0.001');
+fprintf(fileID,'1, 0.1, 0.1 200 0.001, 0.001');
 fclose(fileID);

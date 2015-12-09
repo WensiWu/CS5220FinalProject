@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
+#include<mkl.h>
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-<<<<<<< HEAD
-#define INPUT "7elementschain.txt"
-=======
-#define INPUT "2999elementschain.txt"
->>>>>>> 354b09040b174e55214c322b3b97a9fdcf3e287b
+//#define INPUT "50pyramid.txt"
+#define INPUT "11elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -82,6 +80,12 @@ void test (double *pf, double *pfp, double *pqtot, double *pdd, double *pfpi,
 void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
     double *pelong, double *peleng, double *pdeflen, int *pminc, int *pjcode);
 
+void write_array_double(const char* fname,int n,  double* a);
+
+void write_array_int(const char* fname,int n,  int* a);	
+	
+	
+	
 int main (void)
 {   double t0=omp_get_wtime();
     // Open I/O for business!
@@ -132,7 +136,7 @@ int main (void)
     int itecnt, itemax;							// Iteration counter and max number of iterations
     int errchk;									// Error check variable on user defined functions
     int i;										// Counter variable
-
+    int csrflag=0;
     // Pass control to struc function
     errchk = struc(&jcode[0][0], &minc[0][0]);
 
@@ -239,11 +243,13 @@ int main (void)
         forces (f, area, emod, c1, c2, c3, elong, eleng, &mcode[0][0]);
 
         itecnt = 1;  // Re-initialize iteration counter at the start of each increment
-
+	
         /* Start of each equilibrium iteration within load increment; iterations will
            continue until convergence is reached or iteration count exceeds user
            specified maximum */
         do {
+	    printf("iteration: %d\n", itecnt);
+	    //printf("iteration count: %d \n", itecnt);
             // Compute residual force vector for use in evaluating displacement increment
             for (i = 0; i <= neq - 1; ++i) {
                 r[i] = qtot[i] - f[i];
@@ -251,15 +257,23 @@ int main (void)
 
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-
-            // Solve the system for incremental displacements
+	    if (csrflag==1){
+	    	write_array_double("asky", lss, ss);
+	    	write_array_int("maxa", neq+1, maxa);
+            	write_array_double("r", neq, r);
+	    }
+		// Solve the system for incremental displacements
             if (lss == 1) {
                 // Carry out computation of incremental displacement directly for lss = 1
                 dd[0] = r[0] / ss[0];
             } else {
                 // Pass control to solve function
                 errchk = solve (ss, r, dd, maxa);
-
+	
+	        if (csrflag==1){
+	   		write_array_double("dd", neq, dd);    
+	        }
+		++csrflag;
                 // Terminate program if errors encountered
                 if (errchk == 1) {
                     fprintf(ofp, "\n\nSolution failed\n");
@@ -932,3 +946,29 @@ void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
         *(pc3+i) = el3 / (*(pdeflen+i));
     }
 }
+void write_array_double(const char* fname,int n,  double* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%g ", a[i]);
+    }
+    fclose(fp);
+}
+
+void write_array_int(const char* fname, int n,  int* a)
+{
+    FILE* fp = fopen(fname, "w+");
+    if (fp == NULL) {
+        fprintf(stderr, "Could not open output file: %s\n", fname);
+        exit(-1);
+    }
+    for (int i = 0; i < n; ++i) {
+            fprintf(fp, "%d ", a[i]);
+    }
+    fclose(fp);
+}
+
