@@ -6,7 +6,8 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "10pyramid.txt"
+//#define INPUT "10pyramid.txt"
+#define INPUT "3elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -82,11 +83,7 @@ void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
     double *pelong, double *peleng, double *pdeflen, int *pminc, int *pjcode);
 
 // Skyline indexing to full indexing
-void sky_to_full(int dim, int skysize, int* srcsize, double *full, double *values, int *maxa);
-
-//Full to csr indexing
-void full_to_csr(int size, double *full, double *a, int *ia
-                 , int* ja);
+void skyline_to_csr (double *pss, int *pmaxa, int *pkht, int *plss, double *pa, int *pia, int *pja);
 
 //write to file methods
 void write_array_double(const char* fname,int n,  double* a);
@@ -143,7 +140,7 @@ int main (void)
     int inconv;									// Flag for convergence test
     int itecnt, itemax;							// Iteration counter and max number of iterations
     int errchk;									// Error check variable on user defined functions
-    int i, j, k, n, count;						// Counter variables
+    int i, j, k, n, count, column, row;;						// Counter variables
  	
 	// timing variables
     double t0, t1, solvetimer, indextimer, stifftimer;
@@ -190,8 +187,8 @@ int main (void)
     printf("size of stiffness matrix as a 1D element: %d\n",lss);
     // Define secondary variable which depends upon lss (the size of the stiffness marix as a 1D array)
     double* ss= (double *)malloc(lss*sizeof(double));	// Tangent stiffness matrix stored as an array
-
-    //double* full = (double*)malloc(neq*neq*sizeof(double)); // full matrix representation
+   // double dummy = (double )malloc(neq*neq*sizeof(double)); 
+   // double* full = (double*)malloc(neq*neq*sizeof(double)); // full matrix representation
 
 	//csr arrays, allocated later
     MKL_INT n_MKL=neq;
@@ -199,16 +196,15 @@ int main (void)
     double* a= (double *)malloc(lss*sizeof(double)); //array of values
    // MKL_INT* ia; //array of row addresses
    // MKL_INT* ja; // 
-    int ia[neq+1];
-    int* ja= (int*)malloc(lss*sizeof(int));
-	
+   // int ia[neq+1];
+   int* ia = (int*)malloc((neq+1)*sizeof(int));
+   int* ja = (int*)malloc(lss*sizeof(int));
+ //  int dummy [neq];	
    // int* csrsize = (int*)malloc(sizeof(int)); // pointer to size of a = number of non zeros
    // int csrflag = 0; //flag taht indicates whether src indices were intialized
 
 
-	// Define Pardiso variables
-
-
+   // Define Pardiso variables
 
     MKL_INT mtype = -2;       /* Real symmetric matrix */
   
@@ -245,12 +241,12 @@ int main (void)
         iparm[i] = 0;
     }
     iparm[0] = 0;         /* No solver default */
-  // iparm[1] = 0;         /* Fill-in reordering from METIS */
+   // iparm[1] = 0;         /* Fill-in reordering from METIS */
     iparm[2] = 1; /*number of processors*/
    // iparm[3] = 0;         /* do not use CGS*/
    // iparm[4] = 0;         /* do not use user perm */
    // iparm[5] = 0;         /* write solution to X*/
-   // iparm[6] = 0;         /* # of iternative refinement steps */
+    iparm[6] = 2;         /* # of iternative refinement steps */
     iparm[7] = 2;         /* max  interative */
    // iparm[8] = 0;         /* Not in use */
     iparm[9] = 8;        /* Perturb the pivot elements with 1E-13 */
@@ -261,14 +257,15 @@ int main (void)
    // iparm[14] = 0;        /* Not in use */
    // iparm[15] = 0;        /* Not in use */
    // iparm[16] = 0;        /* Not in use */
-   // iparm[17] = -1;       /* Output: Number of nonzeros in the factor LU */
+    iparm[17] = 0;       /* Output: Number of nonzeros in the factor LU */
    // iparm[18] = 0;       /* Output: Mflops for LU factorization */
    // iparm[19] = 0;        /* Output: Numbers of CG Iterations */
-    iparm[23] = 1; 	/*no parallel numberial factorizaiton*/
+    iparm[20] = 1; 	/*pivoting of rsymmetric indefinite matrices*/
+    iparm[23] = 0; 	/*no parallel numberial factorizaiton*/
   //  iparm[24] = 0; 	   /*forward and barckward solve*/
-    iparm[29] = 80; 	 /*size of the supernodes*/
+    iparm[29] = 0; 	 /*size of the supernodes*/
     iparm[51] = 1;	/*number of compute nodes*/
-    iparm[33] = 1; 	/* solution independent on the number of processors*/
+    iparm[33] = 0; 	/* solution independent on the number of processors*/
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
     msglvl = 0;           /* Print statistical information in file */
@@ -361,82 +358,10 @@ int main (void)
 	    t0 = omp_get_wtime();
             // Pass control to stiff function
             stiff (ss, area, emod, eleng, c1, c2, c3, elong, maxa, &mcode[0][0], &lss);
-            int count=0;
-	    int i, j, k;
-	    double dummy[neq][neq];
-	    for (i = 0; i < neq; ++i){
-		for (j = 0; j < neq; ++j)
-		{
-		   dummy[i][j] = -1;
-		}
-	    } 
-	
-	    for (i = 0; i < neq; ++i){
-		for (j = 0; j <= *(kht + i); ++j)
-		{
-			dummy[i - j][i] = *(ss + *(maxa+i) + count - 1);  
-			++count;
-		} 
-
-	    }
-	
-	   *ia = 1;
-	   count = 0;
-	   for(i = 0 ; i < neq; ++i){
-		for (j = 0; j < neq; ++j){
-			if ( (dummy[i][j]) != -1)
-			{
-				*(ja + count) = j + 1;
-				*(a + count) = dummy [i][j]; 
-				++count;
-			}
-		}
-		*(ia+i+1) = count + 1;
-	//	printf("ia: %d \n",(*ia)[i]);
-	   }
-
-
-	    t1 = omp_get_wtime();
-	    stifftimer = stifftimer + (t1-t0);
-	    printf("Time spent on stiffness matrix computation: %g \n", stifftimer);
-	    // changes indexing to full, and sets size of src
-	    t0 = omp_get_wtime();
-	    //sky_to_full(neq, lss, csrsize, full, ss, maxa);
-
-	    //a = (double*)malloc((*csrsize)*sizeof(double));
-        //   ja = (MKL_INT*)malloc((*csrsize)*sizeof(MKL_INT));
-	    //ia = (MKL_INT*)malloc((neq+1)*sizeof(MKL_INT));
-         
-	    //printf("Number of non zeros:%d \n",*csrsize);
-        //    full_to_csr(neq,full,a, ia, ja);
-	    // Solve the system for incremental displacements
-	    t1 = omp_get_wtime();
-	    indextimer = indextimer + (t1-t0);
-	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
            
-	    count = 0;
-            n = 0;
-            for (i = 0; i < neq; ++i)
-            {
-                k= *(ia+i+1) - *(ia+i);
-                for (j = 0; j< k; ++j)
-                {
-                    *( a + n) = *(ss + *(maxa+count+j) + j - 1);
-                    //fprintf(ofp, "%d: %lf\t", *(maxa+count+j) + j - 1,  *(a+n));
-                    ++n;
-                }
-                ++ count;
-            }
-    //printf("Number of non zeros:%d \n",*csrsize);
-        //    full_to_csr(neq,full,a, ia, ja);
-	    // Solve the system for incremental displacements
-	    t1 = omp_get_wtime();
-	    indextimer = indextimer + (t1-t0);
-	    printf("Time spent on indexing +stiffness: %g \n", indextimer);
-        
-
-
-		// write arrays:
+	    skyline_to_csr(ss, maxa, kht, &lss, a, ia, ja);
+	    
+	// write arrays:
 	    write_array_double("acsr", lss, a);
 	    write_array_int("ia", neq+1, ia);
 	    write_array_int("ja", lss,ja);
@@ -467,9 +392,9 @@ int main (void)
 		/* .. Reordering and Symbolic Factorization. This step also allocates */
 		/* all memory that is necessary for the factorization. */
 		/* -------------------------------------------------------------------- */
-		phase = 11;
+		//phase = 11;
 		//phase = 13;
-		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
+		/*PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 	
 
@@ -480,12 +405,12 @@ int main (void)
     		}
     		printf ("\nReordering completed ... ");
     		printf ("\nNumber of nonzeros in factors = %d", iparm[17]);
-    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);
+    		printf ("\nNumber of factorization MFLOPS = %d", iparm[18]);*/
 		/* -------------------------------------------------------------------- */
 		/* .. Numerical factorization. */
 		/* -------------------------------------------------------------------- */
  
-		  phase = 22;
+		/*  phase = 22;
     		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
            	  &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, &ddum, &ddum, &error);
 
@@ -494,19 +419,24 @@ int main (void)
    		 {
         	printf ("\nERROR during numerical factorization: %d", error);
        		 exit (2);
-  			}
+  			}*/
  		
-		phase = 33;
-   		iparm[7] = 2;         /* Max numbers of iterative refinement steps. */
+		phase = 13;
+   		//iparm[7] = 2;         /* Max numbers of iterative refinement steps. */
     		/* Set right hand side to one. */
 	        PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
             	 &n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
 		
-	   	/*printf("\tDD:\t");
+		 t1 = omp_get_wtime();
+		 solvetimer = solvetimer+(t1-t0);
+		 printf("Total time spent on solving: %g \n", solvetimer);
+
+		
+	   	printf("\n\tDD:\t");
 		for (i = 0; i <= neq - 1; ++i)
 		{
 			printf("%lf\t", dd[i]);
-		}*/
+		}
 
 		 if ( error != 0 )
 		 {
@@ -553,12 +483,8 @@ int main (void)
 		 phase = -1;           /* Release internal memory. */
 	         PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
                  &n_MKL, &ddum, ia, ja, &idum, &nrhs,
-                 iparm, &msglvl, &ddum, &ddum, &error);
+                 iparm, &msglvl, &ddum, &ddum, &error); 
  		 
-		 t1 = omp_get_wtime();
-		 solvetimer = solvetimer+(t1-t0);
-		 printf("Total time spent on solving: %g \n", solvetimer);
-
                 // Terminate program if errors encountered
                 if (errchk == 1) {
                     fprintf(ofp, "\n\nSolution failed\n");
@@ -1228,57 +1154,66 @@ void updatc (double *px, double *pdd, double *pc1, double *pc2, double *pc3,
 // convers a skyline indexed matrix to full matrix, and counts the number of nonzero to be used for 
 // indexing back to csr
 // 
-void sky_to_full(int dim, //dimension of matrix 
-		 int skysize, //size of values array of skyline
-		 int* csrsize, //number of non zeros in matrix
-		 double* full, // pointer to full matrix
-		 double* values, // pointer to values in skyline
-		 int* maxa){ // pointer to max column entry in skyline, size it dim + 1
-	// initializes to zeros
-	for(int i = 0; i < dim*dim; ++i){
-		full[i]=0;
-		}
-	int current_index=0;
-	for(int j = 0; j < dim; j++){
-		int col_size = maxa[j+1]-maxa[j];
-		int first_non_zero= j - col_size+1;
-		for(int i = 0; i < col_size; ++ i){
-			current_index = first_non_zero+i;
- 			full[j*dim+i]=values[maxa[j]-1+i];
-			full[i*dim+j]=values[maxa[j]-1+i]; //if this is commented: only copies the upper half
-		}
+void skyline_to_csr(double *pss, int *pmaxa, int *pkht, int *plss, double *pa, int *pia, int *pja)
+{
+	int i, j, k, n, count, nonzeros;
+	int *rowcount = (int *)calloc(neq, sizeof(int));
+	int *diff = (int *)calloc(neq, sizeof(int));
+	int *index = (int *)calloc(neq, sizeof(int));
+	double *dummy = (double *)calloc(neq, sizeof(double));
+
+	*(pia) = 1;
+	for (i = 0; i < neq; ++i){
+		*(pia + i + 1) = 0;
+		rowcount [i] = 0;
+		index[i] = 0;
+		diff[i] = i - *(pkht + i);
+		dummy [i] = -1;
 	}
-	int count=0;
-	for (int j=0; j < dim ; ++j) //counts number of non zero in 1 triangle
-		for( int i =0; i < j+1; ++i){
-			if (full[j*dim+i]!=0){
+
+	for (i = 0; i < *(plss); ++i)
+	{
+		*(pja + i) = 0;
+		*(pa + i) = 0;
+	}
+
+	count = 0;
+	nonzeros = 0;
+	for (j = 0; j < neq; ++j){
+		for (i = j; i < neq; ++i){
+			if (diff[i] == 0){
+			*(pja + count) = i + 1;
+			++ count;
+			}
+			else{
+			nonzeros = nonzeros + 1;
+			diff[i] = diff[i] - 1;
+			}
+		}
+		rowcount[j] = neq - nonzeros - j;
+		*(pia + j + 1) = *(pia + j) + rowcount[j];
+		nonzeros = 0;
+	}
+
+	for (i = 0; i < neq; ++i){
+	count = 0;
+		for (j = 0; j <= *(pkht + i); ++j){
+			dummy[i - j] = *(pss + *(pmaxa + i) + count -1);
 			++count;
 		}
-	}
-	*csrsize=count;
-}
-
-//takes advantage of the fact that the matrix is symmetric
-void full_to_csr(int dim, // dimension of matrix
-		double *full,
-		double *a,
-		int *ia,
-		int *ja){
-	int count=0;
-	int base_indexing=1;
-	ia[0]=base_indexing;
-	for (int i = 0; i < dim; ++i){
-		for( int j = i; j < dim; ++j){
-			if (full[j*dim+i]!=0){
-				a[count]=full[j*dim+i];
-				ja[count]=j+base_indexing;
-				++count;
-			}	
-		}		 
-		ia[i+1]=count+ base_indexing;				
-	}		
+		for (k = 0; k <= i; ++ k){
+			if (dummy[k] != -1){
+				n = *(pia + k) - 1 + index[k];
+				*(pa + n) = dummy [k];
+				index[k] = index[k] + 1;
+			}
+			dummy [k] = -1;
+		}
+	}	
+	
 
 }
+
 
 void write_array_double(const char* fname,int n,  double* a)
 {
