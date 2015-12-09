@@ -6,8 +6,8 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-//#define INPUT "10pyramid.txt"
-#define INPUT "3elementschain.txt"
+//#define INPUT "50pyramid.txt"
+#define INPUT "11elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -379,8 +379,6 @@ int main (void)
 		// r = right hand side
 		// a, ia ,ja matrix in src
 		// dd = solution ("x")
-		t0 = omp_get_wtime();
-
 		//resets pointer
  		for ( i = 0; i < 64; i++ )
     		{
@@ -420,7 +418,7 @@ int main (void)
         	printf ("\nERROR during numerical factorization: %d", error);
        		 exit (2);
   			}*/
- 		
+ 		t0 = omp_get_wtime();
 		phase = 13;
    		//iparm[7] = 2;         /* Max numbers of iterative refinement steps. */
     		/* Set right hand side to one. */
