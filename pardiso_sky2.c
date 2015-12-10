@@ -429,13 +429,22 @@ int main (void)
 		 solvetimer = solvetimer+(t1-t0);
 		 printf("Total time spent on solving: %g \n", solvetimer);
 
+<<<<<<< HEAD
 		/*
+=======
+	/*	
+>>>>>>> 768d877f3f9d0d31f17839722aa4e138ad792db3
 	   	printf("\n\tDD:\t");
 		for (i = 0; i <= neq - 1; ++i)
 		{
 			printf("%lf\t", dd[i]);
+<<<<<<< HEAD
 		}*/
 
+=======
+		}
+		*/
+>>>>>>> 768d877f3f9d0d31f17839722aa4e138ad792db3
 		 if ( error != 0 )
 		 {
        		 	printf ("\nERROR during solution: %d", error);

@@ -67,16 +67,27 @@ These two different structure give rise to different sparsity patterns in the st
 add plots of sparsity structure
 
 \section{Original code}
+The original code uses a solver that takes advantage of the sparsity pattern of the matrix. The matrix storage format is Skyline indexing (described below). The solver takes advantage of the regular access of the skyline indexing to perform a fast Cholesky-like factorization of the form $LDL^T$ (put source here and stuff). The original code is serial.
+
 
 \subsection{Skyline}
+Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. It takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a Cholesky-like decomposition, for which the fill happening in the decomposition is only within the "skyline".
+Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large, and becomes itself  sparse.
 
+// 
+ADD FIGURE
 \subsection{Timing of original code}
+\subsubsection{Timing on the chain structure}
+
+\subsubsection{Timing on the pyramid structure}
 
 \section{New code}
+Our new code translates the skyline format into a Compressed Sparse Row (csr) format and then uses the MKL sparse solver: pardiso.
+
+\subsection{Compressed sparse row}
 
 \subsection{Pardiso}
 
-\subsection{Compressed sparse row}
 
 \section{Scaling studies}
 
