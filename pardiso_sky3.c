@@ -7,8 +7,8 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "3elementschain.txt"
-//#define INPUT "10pyramid.txt"
+//#define INPUT "3elementschain.txt"
+#define INPUT "200pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -402,8 +402,14 @@ int main (void)
 		phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
+		/*
+	   	printf("\n\tDD:\t");
+		for (i = 0; i <= neq - 1; ++i)
+		{
+			printf("%lf\t", dd[i]);
+		}*/
 
-
+	
     		/*if ( error != 0 )
     		{
         		printf ("\nERROR during symbolic factorization: %d", error);

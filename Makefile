@@ -13,7 +13,7 @@
 PLATFORM=icc
 include Makefile.in.$(PLATFORM)
 
-.PHONY: exe exe-vec pardiso  pardisoskyprint pardisosky pardisosky2 pardisosky3 clean realclean
+.PHONY: exe exe-vec pardiso  pardisosky5 pardisosky pardisosky2 pardisosky3 pardisosky4 clean realclean
 
 
 # === Executables
@@ -73,12 +73,12 @@ pardiso_sky.o: pardiso_sky.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 
-pardisoskyprint: pardiso_sky_print.x
+pardisosky5: pardiso_sky5.x
 	
-pardiso_sky_print.x: pardiso_sky_print.o
+pardiso_sky5.x: pardiso_sky5.o
 	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
-pardiso_sky_print.o: pardiso_sky_print.c
+pardiso_sky5.o: pardiso_sky5.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 pardisosky2: pardiso_sky2.x
@@ -96,6 +96,14 @@ pardiso_sky3.x: pardiso_sky3.o
 	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
 
 pardiso_sky3.o: pardiso_sky3.c
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
+
+pardisosky4: pardiso_sky4.x
+	
+pardiso_sky4.x: pardiso_sky4.o
+	$(LD) $(OMP_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMKL)
+
+pardiso_sky4.o: pardiso_sky4.c
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $(OMP_CFLAGS) $(INCMKL) $< 
 
 

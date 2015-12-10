@@ -6,8 +6,8 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-//#define INPUT "50pyramid.txt"
-#define INPUT "11elementschain.txt"
+#define INPUT "200pyramid.txt"
+//#define INPUT "11elementschain.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -429,12 +429,12 @@ int main (void)
 		 solvetimer = solvetimer+(t1-t0);
 		 printf("Total time spent on solving: %g \n", solvetimer);
 
-		
+		/*
 	   	printf("\n\tDD:\t");
 		for (i = 0; i <= neq - 1; ++i)
 		{
 			printf("%lf\t", dd[i]);
-		}
+		}*/
 
 		 if ( error != 0 )
 		 {
