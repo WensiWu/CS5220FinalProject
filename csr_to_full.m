@@ -1,6 +1,6 @@
 function [ full] = csr_to_full(a, ia , ja )
 n = length(ia)-1;
-full = zeros(n);
+full = sparse(n, n);
 size = ia(n+1)-1;
 
 for i=1:n
