@@ -1,0 +1,839 @@
+
+Begin optimization report for: main(void)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(395,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(395,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+      remark #15389: vectorization support: reference pminc has unaligned access   [ 3D_geom_nonlin_truss.c(396,11) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 2.460 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(395,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(398,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   remark #15382: vectorization support: call to function fscanf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(399,9) ]
+   remark #15382: vectorization support: call to function fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(402,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between  line 399 and  line 402
+   remark #15346: vector dependence: assumed OUTPUT dependence between  line 402 and  line 399
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(407,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+<Peeled>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(407,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   remark #15388: vectorization support: reference pjcode has aligned access   [ 3D_geom_nonlin_truss.c(408,11) ]
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15442: entire loop may be executed in remainder
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 4 
+   remark #15477: vector loop cost: 0.750 
+   remark #15478: estimated potential speedup: 4.830 
+   remark #15479: lightweight vector operations: 3 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(407,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   remark #25460: No loop optimizations reported
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(407,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(411,5) inlined into 3D_geom_nonlin_truss.c(141,14)
+   remark #15520: loop was not vectorized: loop with early exits cannot be vectorized unless it meets search loop idiom criteria
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(450,5) inlined into 3D_geom_nonlin_truss.c(164,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between neq line 453 and neq line 453
+   remark #15346: vector dependence: assumed OUTPUT dependence between neq line 453 and neq line 453
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(451,9) inlined into 3D_geom_nonlin_truss.c(164,5)
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(462,5) inlined into 3D_geom_nonlin_truss.c(164,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between pmcode line 467 and pmcode line 468
+   remark #15346: vector dependence: assumed OUTPUT dependence between pmcode line 468 and pmcode line 467
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(466,9) inlined into 3D_geom_nonlin_truss.c(164,5)
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(462,5) inlined into 3D_geom_nonlin_truss.c(164,5)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(564,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(564,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+      remark #15388: vectorization support: reference pkht has aligned access   [ 3D_geom_nonlin_truss.c(565,11) ]
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 0.750 
+      remark #15478: estimated potential speedup: 5.330 
+      remark #15479: lightweight vector operations: 3 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(564,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(572,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between pkht line 588 and pkht line 588
+   remark #15346: vector dependence: assumed OUTPUT dependence between pkht line 588 and pkht line 588
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(574,9) inlined into 3D_geom_nonlin_truss.c(177,5)
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(580,9) inlined into 3D_geom_nonlin_truss.c(177,5)
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(598,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+<Peeled, Distributed chunk1>
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(598,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   <Peeled, Distributed chunk1>
+      remark #15388: vectorization support: reference pkht has aligned access   [ 3D_geom_nonlin_truss.c(601,11) ]
+      remark #15388: vectorization support: reference .2.29_2temp_array.193.var has aligned access   [ <compiler generated> ]
+      remark #15301: PARTIAL LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 6 
+      remark #15477: vector loop cost: 2.000 
+      remark #15478: estimated potential speedup: 3.000 
+      remark #15479: lightweight vector operations: 8 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(598,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   <Peeled, Remainder, Distributed chunk1>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(598,5) inlined into 3D_geom_nonlin_truss.c(177,5)
+   <Peeled, Distributed chunk2>
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed FLOW dependence between pmaxa line 0 and pmaxa line 0
+      remark #15346: vector dependence: assumed ANTI dependence between pmaxa line 0 and pmaxa line 0
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(532,5) inlined into 3D_geom_nonlin_truss.c(186,14)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(532,5) inlined into 3D_geom_nonlin_truss.c(186,14)
+      remark #15388: vectorization support: reference pq has aligned access   [ 3D_geom_nonlin_truss.c(533,9) ]
+      remark #15399: vectorization support: unroll factor set to 2
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 5 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 3.330 
+      remark #15479: lightweight vector operations: 2 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(532,5) inlined into 3D_geom_nonlin_truss.c(186,14)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(538,9) inlined into 3D_geom_nonlin_truss.c(186,14)
+   remark #15521: loop was not vectorized: explicitly compute the iteration count before executing the loop or try using canonical loop form
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(215,5)
+   remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(216,9) ]
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(220,5)
+   remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(221,9) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(222,9) ]
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 2 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 7 
+   remark #15477: vector loop cost: 3.000 
+   remark #15478: estimated potential speedup: 2.290 
+   remark #15479: lightweight vector operations: 5 
+   remark #15480: medium-overhead vector operations: 1 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(220,5)
+<Remainder>
+   remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(221,9) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(222,9) ]
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(226,5)
+   remark #15388: vectorization support: reference deflen has aligned access   [ 3D_geom_nonlin_truss.c(227,9) ]
+   remark #15388: vectorization support: reference eleng has aligned access   [ 3D_geom_nonlin_truss.c(227,9) ]
+   remark #15388: vectorization support: reference elong has aligned access   [ 3D_geom_nonlin_truss.c(228,9) ]
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 2 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 7 
+   remark #15477: vector loop cost: 3.000 
+   remark #15478: estimated potential speedup: 2.290 
+   remark #15479: lightweight vector operations: 5 
+   remark #15480: medium-overhead vector operations: 1 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(226,5)
+<Remainder>
+   remark #15388: vectorization support: reference deflen has aligned access   [ 3D_geom_nonlin_truss.c(227,9) ]
+   remark #15388: vectorization support: reference eleng has aligned access   [ 3D_geom_nonlin_truss.c(227,9) ]
+   remark #15388: vectorization support: reference elong has aligned access   [ 3D_geom_nonlin_truss.c(228,9) ]
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(236,9)
+   remark #15388: vectorization support: reference fp has aligned access   [ 3D_geom_nonlin_truss.c(238,13) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(238,13) ]
+   remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(237,13) ]
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(237,13) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(239,13) ]
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 2 
+   remark #15449: unmasked aligned unit stride stores: 3 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 14 
+   remark #15477: vector loop cost: 5.500 
+   remark #15478: estimated potential speedup: 2.490 
+   remark #15479: lightweight vector operations: 10 
+   remark #15480: medium-overhead vector operations: 1 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(236,9)
+<Remainder>
+   remark #15388: vectorization support: reference fp has aligned access   [ 3D_geom_nonlin_truss.c(238,13) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(238,13) ]
+   remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(237,13) ]
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(237,13) ]
+   remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(239,13) ]
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(236,9)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(262,7)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(254,13)
+      remark #15388: vectorization support: reference r has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+      remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 2 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 6 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 2.350 
+      remark #15479: lightweight vector operations: 4 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(254,13)
+   <Remainder>
+      remark #15388: vectorization support: reference r has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+      remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(255,17) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(956,5) inlined into 3D_geom_nonlin_truss.c(261,7)
+      remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(957,13) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(969,5) inlined into 3D_geom_nonlin_truss.c(262,7)
+      remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(970,13) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(956,5) inlined into 3D_geom_nonlin_truss.c(263,14)
+      remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(957,13) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(956,5) inlined into 3D_geom_nonlin_truss.c(274,7)
+      remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(957,13) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(301,13)
+      remark #15388: vectorization support: reference fpi has aligned access   [ 3D_geom_nonlin_truss.c(303,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(303,17) ]
+      remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference dd has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(304,17) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 3 
+      remark #15449: unmasked aligned unit stride stores: 3 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 14 
+      remark #15477: vector loop cost: 5.500 
+      remark #15478: estimated potential speedup: 2.490 
+      remark #15479: lightweight vector operations: 10 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(301,13)
+   <Remainder>
+      remark #15388: vectorization support: reference fpi has aligned access   [ 3D_geom_nonlin_truss.c(303,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(303,17) ]
+      remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference d has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference dd has aligned access   [ 3D_geom_nonlin_truss.c(302,17) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(304,17) ]
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(301,13)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(926,5) inlined into 3D_geom_nonlin_truss.c(308,13)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed FLOW dependence between px line 930 and px line 930
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(927,9) inlined into 3D_geom_nonlin_truss.c(308,13)
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(926,5) inlined into 3D_geom_nonlin_truss.c(308,13)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(936,5) inlined into 3D_geom_nonlin_truss.c(308,13)
+      remark #15389: vectorization support: reference pminc has unaligned access   [ 3D_geom_nonlin_truss.c(937,9) ]
+      remark #15389: vectorization support: reference pminc has unaligned access   [ 3D_geom_nonlin_truss.c(938,9) ]
+      remark #15388: vectorization support: reference pdeflen has aligned access   [ 3D_geom_nonlin_truss.c(942,11) ]
+      remark #15388: vectorization support: reference pelong has aligned access   [ 3D_geom_nonlin_truss.c(943,11) ]
+      remark #15388: vectorization support: reference pdeflen has aligned access   [ 3D_geom_nonlin_truss.c(943,11) ]
+      remark #15388: vectorization support: reference peleng has aligned access   [ 3D_geom_nonlin_truss.c(943,11) ]
+      remark #15388: vectorization support: reference pc1 has aligned access   [ 3D_geom_nonlin_truss.c(944,11) ]
+      remark #15388: vectorization support: reference pdeflen has aligned access   [ 3D_geom_nonlin_truss.c(944,11) ]
+      remark #15388: vectorization support: reference pc2 has aligned access   [ 3D_geom_nonlin_truss.c(945,11) ]
+      remark #15388: vectorization support: reference pdeflen has aligned access   [ 3D_geom_nonlin_truss.c(945,11) ]
+      remark #15388: vectorization support: reference pc3 has aligned access   [ 3D_geom_nonlin_truss.c(946,11) ]
+      remark #15388: vectorization support: reference pdeflen has aligned access   [ 3D_geom_nonlin_truss.c(946,11) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 2 
+      remark #15449: unmasked aligned unit stride stores: 5 
+      remark #15450: unmasked unaligned unit stride loads: 2 
+      remark #15458: masked indexed (or gather) loads: 6 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 224 
+      remark #15477: vector loop cost: 107.500 
+      remark #15478: estimated potential speedup: 2.080 
+      remark #15479: lightweight vector operations: 65 
+      remark #15480: medium-overhead vector operations: 2 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(936,5) inlined into 3D_geom_nonlin_truss.c(308,13)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(317,14)
+      remark #15388: vectorization support: reference dd has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+      remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+      remark #15388: vectorization support: reference fp has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 3 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 11 
+      remark #15477: vector loop cost: 4.500 
+      remark #15478: estimated potential speedup: 2.360 
+      remark #15479: lightweight vector operations: 8 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(317,14)
+   <Remainder>
+      remark #15388: vectorization support: reference dd has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+      remark #15388: vectorization support: reference qtot has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+      remark #15388: vectorization support: reference fp has aligned access   [ 3D_geom_nonlin_truss.c(318,15) ]
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(889,9) inlined into 3D_geom_nonlin_truss.c(323,13)
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(890,13) ]
+      remark #15388: vectorization support: reference pf has aligned access   [ 3D_geom_nonlin_truss.c(890,13) ]
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(890,13) ]
+      remark #15388: vectorization support: reference pf has aligned access   [ 3D_geom_nonlin_truss.c(890,13) ]
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(891,13) ]
+      remark #15388: vectorization support: reference pfp has aligned access   [ 3D_geom_nonlin_truss.c(891,13) ]
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(891,13) ]
+      remark #15388: vectorization support: reference pfp has aligned access   [ 3D_geom_nonlin_truss.c(891,13) ]
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 5 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 38 
+      remark #15477: vector loop cost: 11.000 
+      remark #15478: estimated potential speedup: 3.410 
+      remark #15479: lightweight vector operations: 21 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(889,9) inlined into 3D_geom_nonlin_truss.c(323,13)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(904,9) inlined into 3D_geom_nonlin_truss.c(323,13)
+      remark #15388: vectorization support: reference pdd has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15388: vectorization support: reference pfpi has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 3 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 15 
+      remark #15477: vector loop cost: 4.500 
+      remark #15478: estimated potential speedup: 3.180 
+      remark #15479: lightweight vector operations: 8 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(904,9) inlined into 3D_geom_nonlin_truss.c(323,13)
+   <Remainder>
+      remark #15388: vectorization support: reference pdd has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15388: vectorization support: reference pqtot has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15388: vectorization support: reference pfpi has aligned access   [ 3D_geom_nonlin_truss.c(905,13) ]
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(904,9) inlined into 3D_geom_nonlin_truss.c(323,13)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(330,9)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(330,9)
+   <Multiversioned v2>
+      remark #15388: vectorization support: reference fp has aligned access   [ 3D_geom_nonlin_truss.c(331,13) ]
+      remark #15388: vectorization support: reference f has aligned access   [ 3D_geom_nonlin_truss.c(331,13) ]
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 4 
+      remark #15477: vector loop cost: 1.500 
+      remark #15478: estimated potential speedup: 2.660 
+      remark #15479: lightweight vector operations: 2 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(330,9)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(357,9)
+   remark #15527: loop was not vectorized: function call to fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(358,13) ]
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(363,20)
+   remark #15341: loop was not vectorized: nonstandard loop is not a vectorization candidate
+LOOP END
+===========================================================================
+
+Begin optimization report for: forces(double *, double *, double *, double *, double *, double *, double *, double *, int *)
+
+    Report from: Vector optimizations [vec]
+
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(699,5)
+   remark #15536: loop was not vectorized: inner loop throttling prevents vectorization of this outer loop. Refer to inner loop message for more details.
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(700,9)
+      remark #15535: loop was not vectorized: loop contains switch statement. Consider using if-else statement.   [ 3D_geom_nonlin_truss.c(703,17) ]
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: solve(double *, double *, double *, int *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(757,5)
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(758,9) ]
+   remark #15389: vectorization support: reference pr has unaligned access   [ 3D_geom_nonlin_truss.c(758,9) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15450: unmasked unaligned unit stride loads: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 6 
+   remark #15477: vector loop cost: 2.000 
+   remark #15478: estimated potential speedup: 2.980 
+   remark #15479: lightweight vector operations: 1 
+   remark #15480: medium-overhead vector operations: 2 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(757,5)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(762,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(776,13)
+      remark #15542: loop was not vectorized: inner loop was already vectorized
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(788,21)
+      <Peeled>
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(788,21)
+         remark #15388: vectorization support: reference pss has aligned access   [ 3D_geom_nonlin_truss.c(789,25) ]
+         remark #15388: vectorization support: reference pss has aligned access   [ 3D_geom_nonlin_truss.c(789,25) ]
+         remark #15399: vectorization support: unroll factor set to 4
+         remark #15300: LOOP WAS VECTORIZED
+         remark #15442: entire loop may be executed in remainder
+         remark #15448: unmasked aligned unit stride loads: 2 
+         remark #15475: --- begin vector loop cost summary ---
+         remark #15476: scalar loop cost: 17 
+         remark #15477: vector loop cost: 3.500 
+         remark #15478: estimated potential speedup: 4.460 
+         remark #15479: lightweight vector operations: 6 
+         remark #15480: medium-overhead vector operations: 1 
+         remark #15488: --- end vector loop cost summary ---
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(788,21)
+      <Alternate Alignment Vectorized Loop>
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(788,21)
+      <Remainder>
+         remark #15389: vectorization support: reference pss has unaligned access   [ 3D_geom_nonlin_truss.c(789,25) ]
+         remark #15388: vectorization support: reference pss has aligned access   [ 3D_geom_nonlin_truss.c(789,25) ]
+         remark #15381: vectorization support: unaligned access used inside loop body
+         remark #15301: REMAINDER LOOP WAS VECTORIZED
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(788,21)
+      <Remainder>
+      LOOP END
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(797,13)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed ANTI dependence between pss line 800 and pss line 802
+      remark #15346: vector dependence: assumed FLOW dependence between pss line 802 and pss line 800
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(797,13)
+   <Remainder>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(812,13)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed ANTI dependence between pss line 815 and pss line 817
+      remark #15346: vector dependence: assumed FLOW dependence between pss line 817 and pss line 815
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(812,13)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(828,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(835,13)
+   <Peeled>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(835,13)
+      remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(837,17) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: REVERSED LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 11 
+      remark #15477: vector loop cost: 7.500 
+      remark #15478: estimated potential speedup: 1.430 
+      remark #15479: lightweight vector operations: 5 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(835,13)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(844,5)
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15389: vectorization support: reference pmaxa has unaligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15399: vectorization support: unroll factor set to 4
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15449: unmasked aligned unit stride stores: 1 
+   remark #15450: unmasked unaligned unit stride loads: 1 
+   remark #15458: masked indexed (or gather) loads: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 39 
+   remark #15477: vector loop cost: 22.000 
+   remark #15478: estimated potential speedup: 1.750 
+   remark #15479: lightweight vector operations: 6 
+   remark #15480: medium-overhead vector operations: 2 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(844,5)
+<Remainder>
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15389: vectorization support: reference pmaxa has unaligned access   [ 3D_geom_nonlin_truss.c(846,9) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15301: REMAINDER LOOP WAS VECTORIZED
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(844,5)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(852,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Peeled, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Multiversioned v1>
+      remark #15388: vectorization support: reference pss has aligned access   [ 3D_geom_nonlin_truss.c(860,17) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15442: entire loop may be executed in remainder
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15462: unmasked indexed (or gather) loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 11 
+      remark #15477: vector loop cost: 5.500 
+      remark #15478: estimated potential speedup: 1.950 
+      remark #15479: lightweight vector operations: 5 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Remainder, Multiversioned v1>
+      remark #15388: vectorization support: reference pss has aligned access   [ 3D_geom_nonlin_truss.c(860,17) ]
+      remark #15301: REMAINDER LOOP WAS VECTORIZED
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Remainder, Multiversioned v1>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Peeled, Multiversioned v2>
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Multiversioned v2>
+      remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(860,17) ]
+      remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(860,17) ]
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15301: REVERSED LOOP WAS VECTORIZED
+      remark #15448: unmasked aligned unit stride loads: 1 
+      remark #15449: unmasked aligned unit stride stores: 1 
+      remark #15460: masked strided loads: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 11 
+      remark #15477: vector loop cost: 7.500 
+      remark #15478: estimated potential speedup: 1.440 
+      remark #15479: lightweight vector operations: 5 
+      remark #15480: medium-overhead vector operations: 1 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(858,13)
+   <Remainder, Multiversioned v2>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(868,5)
+   remark #15389: vectorization support: reference pdd has unaligned access   [ 3D_geom_nonlin_truss.c(869,17) ]
+   remark #15388: vectorization support: reference q has aligned access   [ 3D_geom_nonlin_truss.c(869,17) ]
+   remark #15381: vectorization support: unaligned access used inside loop body
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15448: unmasked aligned unit stride loads: 1 
+   remark #15451: unmasked unaligned unit stride stores: 1 
+   remark #15475: --- begin vector loop cost summary ---
+   remark #15476: scalar loop cost: 6 
+   remark #15477: vector loop cost: 2.500 
+   remark #15478: estimated potential speedup: 2.390 
+   remark #15479: lightweight vector operations: 2 
+   remark #15481: heavy-overhead vector operations: 1 
+   remark #15488: --- end vector loop cost summary ---
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(868,5)
+<Remainder>
+LOOP END
+===========================================================================
+
+Begin optimization report for: stiff(double *, double *, double *, double *, double *, double *, double *, double *, int *, int *, int *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(646,5)
+   remark #15542: loop was not vectorized: inner loop was already vectorized
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(646,5)
+      remark #15389: vectorization support: reference pss has unaligned access   [ 3D_geom_nonlin_truss.c(647,11) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15399: vectorization support: unroll factor set to 2
+      remark #15300: LOOP WAS VECTORIZED
+      remark #15451: unmasked unaligned unit stride stores: 1 
+      remark #15475: --- begin vector loop cost summary ---
+      remark #15476: scalar loop cost: 5 
+      remark #15477: vector loop cost: 2.500 
+      remark #15478: estimated potential speedup: 1.810 
+      remark #15479: lightweight vector operations: 2 
+      remark #15481: heavy-overhead vector operations: 1 
+      remark #15488: --- end vector loop cost summary ---
+   LOOP END
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(646,5)
+   <Remainder>
+   LOOP END
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(650,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between G line 653 and G line 683
+   remark #15346: vector dependence: assumed ANTI dependence between G line 683 and G line 653
+
+   LOOP BEGIN at 3D_geom_nonlin_truss.c(665,9)
+      remark #15344: loop was not vectorized: vector dependence prevents vectorization
+      remark #15346: vector dependence: assumed OUTPUT dependence between pss line 681 and pss line 683
+      remark #15346: vector dependence: assumed OUTPUT dependence between pss line 683 and pss line 681
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+         remark #15344: loop was not vectorized: vector dependence prevents vectorization
+         remark #15346: vector dependence: assumed OUTPUT dependence between pss line 681 and pss line 683
+         remark #15346: vector dependence: assumed OUTPUT dependence between pss line 683 and pss line 681
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+      LOOP END
+
+      LOOP BEGIN at 3D_geom_nonlin_truss.c(669,17)
+      LOOP END
+   LOOP END
+LOOP END
+===========================================================================
+
+Begin optimization report for: prop(double *, double *, double *, double *, double *, double *, double *, int *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(483,5)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between px line 484 and px line 486
+   remark #15346: vector dependence: assumed OUTPUT dependence between px line 486 and px line 484
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(483,5)
+<Remainder>
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(491,5)
+   remark #15382: vectorization support: call to function fscanf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(493,9) ]
+   remark #15382: vectorization support: call to function fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(497,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between  line 493 and  line 497
+   remark #15346: vector dependence: assumed OUTPUT dependence between  line 497 and  line 493
+LOOP END
+
+LOOP BEGIN at 3D_geom_nonlin_truss.c(504,5)
+   remark #15382: vectorization support: call to function fscanf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(515,9) ]
+   remark #15382: vectorization support: call to function fprintf(FILE *__restrict__, const char *__restrict__, ...) cannot be vectorized   [ 3D_geom_nonlin_truss.c(518,9) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed ANTI dependence between pminc line 505 and mod line 515
+   remark #15346: vector dependence: assumed FLOW dependence between mod line 515 and pminc line 505
+LOOP END
+===========================================================================
