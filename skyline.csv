@@ -1,0 +1,40 @@
+Function,Module,CPU Time,Spin Time,Overhead Time
+solve,3D_geom_nonlin_truss.x,32.580008,0.0,0.0
+__printf_fp,libc-2.12.so,0.862000,0.0,0.0
+_IO_vfprintf,libc-2.12.so,0.530000,0.0,0.0
+__intel_memset,3D_geom_nonlin_truss.x,0.276000,0.0,0.0
+hack_digit.15675,libc-2.12.so,0.261000,0.0,0.0
+__mpn_mul_1,libc-2.12.so,0.172000,0.0,0.0
+[Outside any known module],[Unknown],0.121000,0.0,0.0
+_IO_file_xsputn,libc-2.12.so,0.115000,0.0,0.0
+stiff,3D_geom_nonlin_truss.x,0.107000,0.0,0.0
+strchrnul,libc-2.12.so,0.075000,0.0,0.0
+forces,3D_geom_nonlin_truss.x,0.074000,0.0,0.0
+__mpn_lshift,libc-2.12.so,0.066000,0.0,0.0
+fprintf,libc-2.12.so,0.052000,0.0,0.0
+__mpn_divrem,libc-2.12.so,0.046000,0.0,0.0
+__mpn_extract_double,libc-2.12.so,0.041000,0.0,0.0
+__strlen_sse2,libc-2.12.so,0.030000,0.0,0.0
+_IO_vfscanf,libc-2.12.so,0.027000,0.0,0.0
+write_array_double,3D_geom_nonlin_truss.x,0.027000,0.0,0.0
+free,libc-2.12.so,0.021000,0.0,0.0
+updatc,3D_geom_nonlin_truss.x,0.019000,0.0,0.0
+__isinf,libc-2.12.so,0.018000,0.0,0.0
+__mpn_rshift,libc-2.12.so,0.016000,0.0,0.0
+_pthread_cleanup_pop_restore,libpthread-2.12.so,0.015000,0.015000,0.0
+_pthread_cleanup_push_defer,libpthread-2.12.so,0.014000,0.014000,0.0
+main,3D_geom_nonlin_truss.x,0.009000,0.0,0.0
+__mpn_mul,libc-2.12.so,0.008000,0.0,0.0
+isnan,libc-2.12.so,0.008000,0.0,0.0
+[Import thunk free],libc-2.12.so,0.007000,0.0,0.0
+____strtod_l_internal,libc-2.12.so,0.007000,0.0,0.0
+__mempcpy,libc-2.12.so,0.005000,0.0,0.0
+memcpy,libc-2.12.so,0.004000,0.0,0.0
+test,3D_geom_nonlin_truss.x,0.004000,0.0,0.0
+_itoa_word,libc-2.12.so,0.003000,0.0,0.0
+prop,3D_geom_nonlin_truss.x,0.003000,0.0,0.0
+[Import thunk fprintf],3D_geom_nonlin_truss.x,0.002000,0.0,0.0
+__isoc99_fscanf,libc-2.12.so,0.002000,0.0,0.0
+__mpn_cmp,libc-2.12.so,0.002000,0.0,0.0
+codes,3D_geom_nonlin_truss.x,0.001000,0.0,0.0
+str_to_mpn,libc-2.12.so,0.001000,0.0,0.0

@@ -7,8 +7,8 @@
 #include <mkl.h>
 
 /*#define INPUT "model_def.txt"*/ // Map of path to input file
-#define INPUT "3elementschain.txt"
-//#define INPUT "10pyramid.txt"
+//#define INPUT "3elementschain.txt"
+#define INPUT "200pyramid.txt"
 #define OUTPUT "results.txt" // Map of path to output file
 
 /*
@@ -255,7 +255,7 @@ int main (void)
     iparm[27]=1;
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
-    msglvl = 0;           /* Print statistical information in file */
+    msglvl = 1;           /* Print statistical information in file */
     error = 0;            /* Initialize error flag */
 /* -------------------------------------------------------------------- */
 /* .. Initialize the internal solver memory pointer. This is only */
@@ -267,7 +267,7 @@ int main (void)
     }
    
     //pardisoinit(pt,&mtype, iparm);
-
+    //mkl_set_num_threads(4); 
 
    // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
@@ -402,8 +402,14 @@ int main (void)
 		phase = 13;
 		PARDISO (pt, &maxfct, &mnum, &mtype, &phase,
              	&n_MKL, a, ia, ja, &idum, &nrhs, iparm, &msglvl, r, dd, &error);
+		/*
+	   	printf("\n\tDD:\t");
+		for (i = 0; i <= neq - 1; ++i)
+		{
+			printf("%lf\t", dd[i]);
+		}*/
 
-
+	
     		/*if ( error != 0 )
     		{
         		printf ("\nERROR during symbolic factorization: %d", error);
