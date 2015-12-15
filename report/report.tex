@@ -31,7 +31,7 @@
 
 \section{Introduction}\label{sec:intro}
 
-The goal of this project was to compare the performance of two different sparse direct solvers. First, we took a look at our in-house quasi-static structural code, $3D\_geom\_nonlin\_truss.c$. The numerical implementation of the code is described in section \ref{sec:method}.  The $3D\_geom\_nonlin\_truss.c $ is a geometrically nonlinear finite element code embedded with the feature of analyzing truss structures using skyline indexing scheme and Cholesky-like factorization to solve a large system of equations. In section \ref{sec:setup}, we describe the two different input structures we used for the performance analysis.  A detailed description of the skyline indexing scheme is provided in section \ref{sec:originalCode}. \\
+The goal of this project was to compare the performance of two different sparse direct solvers. First, we took a look at our in-house quasi-static structural code, refered to as "original code" from now on. The numerical implementation of the code is described in section \ref{sec:method}.  The original code is a geometrically nonlinear finite element code embedded with the feature of analyzing truss structures using skyline indexing scheme and compact Gaussian elimination strategy, active column solution or the skyline reduction method, to solve a large system of equations. The details of the algorithm can be found in \cite{Bathe}. In section \ref{sec:setup}, we describe the two different input structures we used for the performance analysis.  A detailed description of the skyline indexing scheme is provided in section \ref{sec:originalCode}. \\
 
 The solver in which we compared our original code with is a MKL sparse direct solver: Pardiso. Pardiso has features of solving large symmetric and nonsymmetric linear systems of equaitons, $AX=B$, using parallel $LU$, $LDL^T$ or $LL^T$ factorization where $L$, $U$, and $D$ are the low triangle, upper triangle and the diagonal of matrix $A$ respectively. The solver employes parallel pivoting methods based on OpenMP directives, which result in the robust and memory-efficient performance. In section ~\ref{sec:newCode} we will describe how we translated the skyline indexing scheme in the original code into Compressed Sparse Row (CSR) format in order to take advantage of the Pardiso solver.\\
 
@@ -44,13 +44,14 @@ The numerical analysis of truss problems can be written in the form:
 $$F_l(u)=0$$
 u is the displacement, F is a system of $n$ non-linear equations where n depends on the number of nodes and degrees of freedom, and l is the maximum load factor.\\
 
-We solve this system of non-linear equation using an iterative method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. Each $F_l(u)=0$ equation is solved using the Newton Raphson iteration method. In other words, we repeatedly solve the system equation $F_l(u_{t+1}) \simeq F_l(u_t) + K_l(u_t)*u_{t+1}$ until the solution converges to a defined tolerance close to 0. $K_l(u_t)$ is the Jacobian matrix at $u_t$, which in this problem is the same as the Stiffness matrix. Each iteration is essentially a linear solve:
+We solve this system of non-linear equation using an iterative method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. Each $F_l(u)=0$ equation is solved using the Newton Raphson iteration method. In other words, we repeatedly solve the system equation $F_l(u_{t+1}) \simeq F_l(u_t) + K_l(u_t)*u_{t+1}$ until the solution converges to a defined tolerance close to 0. $K_l(u_t)$ is the Jacobian matrix at $u_t$, which in this problem is the same as the Stiffness matrix. Each iteration is therefore a linear solve:
 $$K_l(u_t)*u_{t+1}=-F_l(u_t)$$.
 
 \section{Initial Profile Result}\label{sec:profiling}
 
 \subsection{Timing}
-To identify the bottleneck of our original code, we ran the code with a test case, a pyramid made of 59700 nodes and 20100 elements, using amplxe. This case gave us a stiffness matrix size of 39800 * 39800. The CPU time spent in executing the orginal code is show in the table below. As shown, majority of the computation time is spent on the linear solve section due to dimension of the matrix. Although the size of stiffness matrix is very large, we noticed that it is actually very sparse. Hence, implementing a sparse solver would be our primary approach to speed up the code. \\
+To identify the bottleneck of our original code, we ran the code with a test case, a pyramid made of 59700 elements and 20100 nodes, using amplxe. This case produces a stiffness matrix size of 39800x39800. The CPU time spent in executing the original code is shown below. The majority of the computation time is spent on the linear solve section due to matrix size. Although the size of stiffness matrix is very large, it is very sparse. Hence, using an efficient sparse solver should speed up the code significantly. 
+
 
 Below is the timing results of the original code:
 
@@ -72,8 +73,8 @@ Below is the timing results of the original code:
 	\end{tabular}
 \end{center}
 
-\subsection{Vectorizaiton}
-On top of introducing sparse direct solver to the original code, we looked into how efficient the vectorization of the solve function is. As shown in the vectorization report (see figure 1 \ref{fig:vectorization}), the solve function shows some vectorization, which increases the speedup of the main loop by a factor of 1.75. 
+\subsection{Vectorization}
+We looked into how efficient the vectorization of the solve function is. As shown in the vectorization report (see figure \ref{fig:vectorization}), the solve function shows some vectorization, which increases the speed of the main loop by a factor of 1.75. 
 
 \begin{figure}[h]
 	\begin{center}
@@ -96,9 +97,9 @@ We wrote two scripts that generate two different type of input structures, a War
 \begin{center}
 
 \includegraphics[width=8cm]{chain}
-\caption{A Warren truss bridge of 7 elements}
+\caption{A Warren truss bridge of 11 elements}
 \label{fig:chain}
-The blue circles are the nodes, and the yellow bars are the elements
+The blue circles are the nodes, the yellow bars are the elements, the arrows indicate the nodes where load is applied.
 \end{center}
 
 \end{figure}
@@ -108,9 +109,9 @@ The blue circles are the nodes, and the yellow bars are the elements
 \begin{center}
 
 \includegraphics[width=8cm]{pyramid}
-\caption{A pyramid structure of 6 elements}
+\caption{A pyramid structure of 9 elements}
 \label{fig:pyramid}
-The blue circles are the nodes, and the yellow bars are the elements
+The blue circles are the nodes, the yellow bars are the elements, the arrows indicate the nodes where load is applied.
 \end{center}
 
 \end{figure}
@@ -118,7 +119,7 @@ The blue circles are the nodes, and the yellow bars are the elements
 
 For each structure we declare the position of each node, the position of each elements (as defined by a pair of nodes), the properties of each element (cross section area and the corresponding young's modulus), and an applied load on each node. For the Warren truss bridge, the first base node was constrianted with fixed support and the last base node was constrained with roller support. We applied a load to every other node at the top of truss. For the pyramid structure, all base nodes were constrained with fixed support. We applied a load to all boundary nodes.\\
 
-These two different structure give rise to significantly different running time and sparsity patterns in the stiffness matrix, for a fixed number of elements. Indeed, the truss structure produces a stiffness matrix with a small dense band, which is not the case for the pyramid structure.
+These two different structure give rise to significantly different running time and sparsity patterns in the stiffness matrix, for a fixed number of elements. Indeed, the truss structure produces a stiffness matrix with a small dense band, which is not the case for the pyramid structure  as can be observed in figure ~\ref{fig:pyramid-sparsity}.
 
 \begin{figure}[H]
 \begin{center}
@@ -134,7 +135,7 @@ The original code reads in all of the parameter of the structure, and performs n
 
 
 \subsection{Skyline}
-Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. Note that the term "Skyline" also refers to the set of entries from first non-zero to the diagonal in each column. A matrix in skyline format is three arrays: 
+Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. Note that the term "Skyline" also refers to the set of entries from first non-zero to the diagonal in each column. A matrix in skyline format consists three arrays: 
 \begin{enumerate}
 
 \item value array: an array contains the values in the stiffness matrix between the first non-zero entry of each column and the diagonal
@@ -160,9 +161,10 @@ MAXA&= [1, 2, 3, 6, 8, 11] \\
 KHT&=[1, 0, 2, 1, 2]
 \end{align}
 
- The skyline indexing takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. See \cite{Bathe} for details. One reason that makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
  
-Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large, and becomes itself  sparse.
+The skyline indexing format takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. See \cite{Bathe} for details. One reason that makes the skyline format attractive is that the fill happening during the decomposition is only between the "skyline" and the diagonal, and all of these entries are saved by the format.\\ 
+ 
+Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large and becomes  sparse.
 
 \section{Optimized code}\label{sec:newCode}
 To optimize the original code, we translated the skyline format into a Compressed Sparse Row format and then used the MKL parallel sparse solver: Pardiso.
@@ -195,12 +197,12 @@ rows&= [1,3,4,7,8,9]
 \end{align}
 
 \subsection{Pardiso}
-Pardiso is the sparse solver of the library MKL. It can solve many different types of sparse systems such as real or complex, symmytric, structurally symmertric or non-symmetric, definite or indefinite. See \cite{Intel} for details. In our case, the stiffness matrix is real symmetric positive definite. Pardiso has a wealth of different settings to change pivoting strategies, number of threads, number of iterative refinement steps, etc. In our case, pardiso performs a factorization of the form $LL^T$, uses the parallel version of the nested dissectin algorithm and takes 2 refinement steps. 
+Pardiso is the sparse solver of the library MKL. It can solve many different types of sparse systems such as real or complex, symmetric, structurally symmertric or non-symmetric, definite or indefinite. See \cite{Intel} for details. In our case, the stiffness matrix is real symmetric positive definite. Pardiso has a wealth of different settings to change pivoting strategies, number of threads, number of iterative refinement steps, etc. In our case, pardiso performs a factorization of the form $LL^T$, uses the parallel version of the nested dissection algorithm and takes 2 refinement steps. 
 
 \subsection{Timing comparisons}
-Figure \ref{fig:chaincomp} shows the comparisons of running time between the original solver and the pardiso solver using single thread  on the truss structure. \\
+Figure  ~\ref {fig:chaincomp} shows  the comparisons of running time between the original solver and the pardiso solver running on a single thread on the chain structure. \\
 
-We observe that on the truess structure, both solver are very fast (about 1 second for a structure with 30.000 elements, but the original solver is slightly better. This is likely due to the fact that the original solver is very efficient on this system generated by the structure. Indeed as observed earlier the stiffness matrix in this case have a small but dense band, which is where the solver using the skyline format excels.
+We observe that on the chain structure both solver are very fast (about 1 second for a structure with 30.000 elements), but the original solver is slightly better.  This is likely due to the fact that the original solver is very efficient on this system generated by the structure. Indeed as observed earlier the stiffness matrix in this case have a small but dense band, which is where the solver using the skyline format excels. We also note that both solver display a linear growth in running time as the number of elements increase.
 
 
 \begin{figure}[H]
@@ -214,7 +216,7 @@ We observe that on the truess structure, both solver are very fast (about 1 seco
 
 Figure \ref{fig:pyr_comp} shows the comparisons of running time between the original solver and the pardiso solver using single thread on the pyramid structure. \\
 
-Contrary to the truss structure, the pardiso solver is much faster on the pyramid structure. This is likely due to the fact that the skyline format keeps a very high number of zeros, and therefore performs a lot of unnecessary arithmetic. Indeed, for the case where we have a 40.000, over $98\%$ of the entries saved by the skyline format are zeros.
+Contrary to the chain structure, on the pyramid structure the pardiso solver is much faster on large structures. This is likely due to the fact that the skyline format keeps a very high number of zeros, and therefore performs a lot of unnecessary arithmetic. Indeed, for the case where we have a pyramid structure giving rise to a stiffness matrix of dimension 40.000, over $98\%$ of the entries saved by the skyline format are zeros. The original solver seems to display a quadratic growth of the running time as the number of elements increase, whereas the pardiso solver shows a linear growth.
 
 
 \begin{figure}[H]
@@ -228,29 +230,34 @@ Contrary to the truss structure, the pardiso solver is much faster on the pyrami
 
 
 \section{Scaling studies}\label{sec:scaling}
-The base case considered here is the original finite element code embedded with skyline indexing scheme and Cholesky factorization method. We are comparing the base case with a optimized case where the skyline indexing scheme was replaced by CSR and the Cholesky factorization solve was replaced by Pardiso solver. 
+
 
 \subsection{Strong scaling}
-We performed a strong scaling studying of the optimaized code on a pyramid structure containing 59700 elements (which corresponds to a base of 200 nodes). This gave us a problem size of n = 39800 where n is the size of the stiffness matrix. Figure \ref{fig:strongplot} shows a plot of running time against the number of threads used. We fixed the number of OpenMP thread to 1 and consider the range of processors from 1 to 12. Firgure \ref{fig:speedupstrong} shows the speedup against the number of threads used. We measured speedup as the ratio of the CPU time spent on solving the linear system of equation for the base case verse the CPU time spent on solving the linear system of equation for the optimatized case. We observe that the speed up is relatively small, approximately 1.5 when 5 threads were used and no additional speedup is attained by increasing the number of threads used. \\
+
+
+We performed a strong scaling study of the optimized code on a pyramid stucture containing 59700 elements (which corresponds to a base of 200 elements). This test case gives rise to a stiffness matrix of dimension 39800x39800 .  Figure ~\ref{fig:strongscaling} shows a plot of the running time against the number of threads used, and figure ~\ref{fig:speedupstrong} shows the speedup against the number of threads used. We measured speedup as the ratio of the time spent on solving the test case with 1 thread over the running time of the test case with p threads. We observe that the speedup is relatively small, approximately 1.5 when 5 threads are used, and no additional speedup is attained by increasing the number of threads used.
+
+
 
 \begin{figure}[H]
-	\begin{center}
-		\includegraphics[width=11cm]{strongplot}
-		\caption{Fixing number of OpenMP thread = 1, and varying the number of processors from 1 to 12}
-		\label{fig:strongplot}
-	\end{center}
+\begin{center}
+\caption{Plot of running time against the number of threads on a pyramid of base 200}
+\includegraphics[width=12cm]{strongplot}
+\label{fig:strongscaling}
+\end{center}
 \end{figure}
 
 \begin{figure}[H]
-	\begin{center}
-		\includegraphics[width=11cm]{speedupstrong}
-		\caption{Speedup ratio vs. varying the number of OpenMP threads from 1 to 12 }
-		\label{fig:speedupstrong}
-	\end{center}
+\begin{center}
+\caption{Plot of speedup against the number of threads on a pyramid of base 200}
+\includegraphics[width=12cm]{speedupstrong}
+\label{fig:speedupstrong}
+\end{center}
 \end{figure}
+
 
 \subsection{Weak scaling}
-We performed a weak scaling study for the optimized code on the pyramid structure. We fixed the number of processor to 1 and consider the range of 1 to 12 threads. On figure 8, we observed that the pardiso solver exhibits a linear growth in running time as the number of element increases, therefore we increase the number of threads linearly with the number of elements. Figure \ref{fig:weakplot} shows the result of the weak scaling study. We observe that the running time increases as the number of thread increases. This is expected as the strong scaling study revealed that the speedup on fixed size is not significant. These results suggests that using the right solver for the specific structure has a lot more impact on the running time than a solver than running in parallel.
+We performed a weak scaling study of the optimized code on the pyramid structure. On figure 8, we observed that the pardiso solver exhibits a linear growth in running time as the number of element increases, therefore we increase the number of threads linearly with the number of elements. Figure \ref{fig:weakplot} shows the result of the weak scaling study. We observe that the running time increases as the number of thread increases. This is expected as the strong scaling study revealed that the speedup on fixed size is not significant. These results suggests that using the right solver for the specific structure has a lot more impact on the running time than a solver than running in parallel.
 
 \begin{figure}[H]
 	\begin{center}
@@ -261,7 +268,7 @@ We performed a weak scaling study for the optimized code on the pyramid structur
 \end{figure}
 
 \section{Conclusion}\label{sec:conclusion}
-We compared the performance of two direct solvers: a solver that's popular in the field of structural mechanics, and an all purpose sparse direct linear solver: pardiso. We found that their performance depended heavily on the structure used, and that pardiso scales much better for structures that give rise to stiffness matrix having large, sparse bands. We then performed a scaling studies on the code that uses the pardiso solver, and found that limited speed was achieved by increasing the number of threads used. 
+We compared the performance of two direct solvers: a solver that is popular in the field of structural mechanics, and an all purpose sparse direct linear solver: pardiso. We found that their performance depended heavily on the structure used, and that pardiso scales much better for structures that give rise to stiffness matrix having large, sparse bands. We then performed a scaling studies on the code that uses the pardiso solver, and found that limited speed was achieved by increasing the number of threads used. 
 
 \section{Future Work}\label{sec:future}
 It would be interesting to try different structures and different solvers. In particular, if we had more time, we would compare these two solvers to an iterative solver. An interesting question would then be to determine if solving each Newton step approximately (i.e. taking only a small number of steps in the iterative linear solver), but performing more Newton step would lead to speedup. 
