@@ -255,7 +255,7 @@ int main (void)
     iparm[27]=1;
     maxfct = 1;           /* Maximum number of numerical factorizations. */
     mnum = 1;         /* Which factorization to use. */
-    msglvl = 0;           /* Print statistical information in file */
+    msglvl = 1;           /* Print statistical information in file */
     error = 0;            /* Initialize error flag */
 /* -------------------------------------------------------------------- */
 /* .. Initialize the internal solver memory pointer. This is only */
@@ -267,7 +267,7 @@ int main (void)
     }
    
     //pardisoinit(pt,&mtype, iparm);
-
+    mkl_set_num_threads(4); 
 
    // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
