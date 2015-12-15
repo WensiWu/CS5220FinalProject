@@ -25,41 +25,35 @@
 
 
 \begin{document}
-\title{CS 5220\\ Comparative Study on the Computational Speed Between Skylines and Pardiso Sparse Direct Solver}
+\title{CS 5220\\ Comparative Studies on the Computational Speed Between Skylines and Pardiso Sparse Direct Solver}
 \author{Marc Aurele Gilles (mtg79)\\ Wenjia Gu (wg233)\\Wensi Wu(382) }
 \maketitle
 
 \section{Introduction}\label{sec:intro}
 
-The goal of this project was to compare the performance of two different sparse direct solvers. First, we took a look at our in-house quasi-static structural code, $3D\_geom\_nonlin\_truss.c$. The numerical implementation of the code is described in section \ref{sec:method}.  The $3D\_geom\_nonlin\_truss.c $ is a geometrically nonlinear finite element code embedded with the feature of analyzing truss structures using skyline indexing scheme and compact Gaussian elimination strategy, active column solution or the skyline reduciton method, to solve a large system of equations. In section \ref{sec:setup}, we describe the two different input structures we used for the performance analysis.  A detailed description of the skyline indexing scheme is provided in section \ref{sec:originalCode}. \\
+The goal of this project was to compare the performance of two different sparse direct solvers. First, we took a look at our in-house quasi-static structural code, $3D\_geom\_nonlin\_truss.c$. The numerical implementation of the code is described in section \ref{sec:method}.  The $3D\_geom\_nonlin\_truss.c $ is a geometrically nonlinear finite element code embedded with the feature of analyzing truss structures using skyline indexing scheme and Cholesky-like factorization to solve a large system of equations. In section \ref{sec:setup}, we describe the two different input structures we used for the performance analysis.  A detailed description of the skyline indexing scheme is provided in section \ref{sec:originalCode}. \\
 
-The solver in which we compared our original code with is the MKL sparse solver: Pardiso. Pardiso has features of solving large symmetric and nonsymmetric linear systems of equaitons, $AX=B$, using a parallel $LU$, $LDL^T$ or $LL^T$ factorization where $L$, $U$, and $D$ are the low triangle, upper triangle and the diagonal of matrix $A$ respectively. The solver employes parallel pivoting methods based on OpenMP directives, which result in the robust and memory-efficient performance. In section ~\ref{sec:newCode} we will describe how we translated the skyline indexing scheme in the original code into Compressed Sparse Row (csr) format in order to take advantage of the Pardiso solver.\\
+The solver in which we compared our original code with is a MKL sparse direct solver: Pardiso. Pardiso has features of solving large symmetric and nonsymmetric linear systems of equaitons, $AX=B$, using parallel $LU$, $LDL^T$ or $LL^T$ factorization where $L$, $U$, and $D$ are the low triangle, upper triangle and the diagonal of matrix $A$ respectively. The solver employes parallel pivoting methods based on OpenMP directives, which result in the robust and memory-efficient performance. In section ~\ref{sec:newCode} we will describe how we translated the skyline indexing scheme in the original code into Compressed Sparse Row (csr) format in order to take advantage of the Pardiso solver.\\
 
 After we successfully hooked Pardiso into our original code, we conducted weak and strong scaling studies for both sparse direct methods. The results can be found in section \ref{sec:scaling}.  
 
 
 \section{Numerical Method}\label{sec:method}
 
-The truss computing problem can be written in the form
+The numerical analysis of truss problems can be written in the form:
 $$F_l(u)=0$$
-where u is the displacement, and F is a system of $n$ non-linear equations, where n depends on the number of nodes, degrees of freedom, and l is the maximum load factor.
+u is the displacement, F is a system of $n$ non-linear equations where n depends on the number of nodes and degrees of freedom, and l is the maximum load factor.\\
 
-We solve this system of equation using a continuation method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. 
-\\
-Each $F_l(u)=0$ equation is solved by a Newton method iteration.
-
-That is we repeatedly solve $F_l(u_{t+1}) \simeq F_l(u_t) + S_l(u_t)*u_{t+1} =0$, where $S_l(u_t)$ is the Jacobian matrix at $u_t$, which in this problem is the same as the Stiffness matrix. 
-In other words, each iteration is a linear solve:
-$$S_l(u_t)*u_{t+1}=-F_l(u_t)$$.
-
-Most of the computation of this program is spent doing this linear solve. The stiffness matrix for large structures is very high dimensional and very sparse, a sparse solver is therefore needed.
+We solve this system of non-linear equation using an iterative method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. Each $F_l(u)=0$ equation is solved using the Newton Raphson iteration method. In other words, we repeatedly solve the system equation $F_l(u_{t+1}) \simeq F_l(u_t) + K_l(u_t)*u_{t+1}$ until the solution converges to a defined tolerance close to 0. $K_l(u_t)$ is the Jacobian matrix at $u_t$, which in this problem is the same as the Stiffness matrix. Each iteration is essentially a linear solve:
+$$K_l(u_t)*u_{t+1}=-F_l(u_t)$$.
 
 \section{Initial Profile Result}\label{sec:profiling}
 
 \subsection{Timing}
-To identify the bottleneck of our original code, we ran the code with a test case, a pyramid made of 59700 nodes and 20100 elements, using amplxe. This case gave us a stiffness matrix size of 39800 * 39800. The CPU time spent in executing the orginal code is show in shown below. Majority of the computation time is spent on the linear solve section due to matrix size. Although the size of stiffness matrix is very large, we noticed that it is actually very sparse. Hence, implementing a sparse solver would be our primary approach to speed up the code. 
+To identify the bottleneck of our original code, we ran the code with a test case, a pyramid made of 59700 nodes and 20100 elements, using amplxe. This case gave us a stiffness matrix size of 39800 * 39800. The CPU time spent in executing the orginal code is show in the table below. As shown, majority of the computation time is spent on the linear solve section due to dimension of the matrix. Although the size of stiffness matrix is very large, we noticed that it is actually very sparse. Hence, implementing a sparse solver would be our primary approach to speed up the code. \\
 
-Below is the timing results of the original code. 
+Below is the timing results of the original code:
+
 \begin{center}
 	\begin{tabular}{||c c c ||} 
 		\hline
@@ -79,13 +73,13 @@ Below is the timing results of the original code.
 \end{center}
 
 \subsection{Vectorizaiton}
-On top of introducing sparse direct solver to the original code, we thought of vectorizing the solve function to ensure that it was efficient enough. As shown in the vectorization report (see figure \ref{fig:vectorization}), the solve function was already vectorize based on the report. As a result, we didn't have to do much on vectorization. 
+On top of introducing sparse direct solver to the original code, we thought of vectorizing the solve function to ensure that it was efficient enough. However, as shown in the vectorization report (figure \ref{fig:vectorization}), the solve function was already vectorize based on the report. As a result, we didn't have to do much on vectorization. 
 
 \begin{figure}[h]
 	\begin{center}
 		
+		\includegraphics[width=11cm]{vectorization}
 		\caption{Vectorization report of the solve function}
-		\includegraphics[width=12cm]{vectorization}
 		\label{fig:vectorization}
 	\end{center}
 	
@@ -93,17 +87,17 @@ On top of introducing sparse direct solver to the original code, we thought of v
 
 \section{Setup: generating input structures}\label{sec:setup}
 
-As our objective is to speed up this computation and conduct scaling studies, we need to be able to generate input structures of variable sizes.
-We wrote two scripts that generate two different type of input structures, a "chain" structure (see figure ~\ref{fig:chain}) , and a "pyramid" structure (see figure ~\ref{fig:pyramid}) .
+Since our objective is to speed up computation time and conduct scaling studies, we need to be able to generate input structures of variable sizes.\\
+
+We wrote two scripts that generate two different type of input structures, a Warren truss bridge (see figure ~\ref{fig:chain}) , and a "pyramid" structure (see figure ~\ref{fig:pyramid}) .
 
 
 \begin{figure}[h]
 \begin{center}
 
-\caption{A chain structure of 7 elements}
 \includegraphics[width=8cm]{chain}
+\caption{A Warren truss bridge of 7 elements}
 \label{fig:chain}
-\\
 The blue circles are the nodes, and the yellow bars are the elements
 \end{center}
 
@@ -113,40 +107,37 @@ The blue circles are the nodes, and the yellow bars are the elements
 \begin{figure}[h]
 \begin{center}
 
-\caption{A pyramid structure of 6 elements}
 \includegraphics[width=8cm]{pyramid}
+\caption{A pyramid structure of 6 elements}
 \label{fig:pyramid}
-\\
 The blue circles are the nodes, and the yellow bars are the elements
 \end{center}
 
 \end{figure}
 
 
+For each structure we declare the position of each node, the position of each elements (as defined by a pair of nodes), the properties of each element (cross section area and the corresponding young's modulus), and an applied load on each node. For the Warren truss bridge, the first base node was constrianted with fixed support and the last base node was constrained with roller support. We applied a load to every other node at the top of truss. For the pyramid structure, all base nodes were constrained with fixed support. We applied a load to all boundary nodes.\\
 
-For each structure we declare the position of each node, the position of each elements (as defined by a pair of nodes), the properties of each element (cross section area and the corresponding young's modulus ), and a load factor on each node.
-
-These two different structure give rise to significantly different running time and sparsity patterns in the stiffness matrix, for a fixed number of elements. Indeed, the chain structure produces a stiffness matrix with a small dense band, which is not the case for the pyramid structure.
+These two different structure give rise to significantly different running time and sparsity patterns in the stiffness matrix, for a fixed number of elements. Indeed, the truss structure produces a stiffness matrix with a small dense band, which is not the case for the pyramid structure.
 
 \begin{figure}[H]
 \begin{center}
+\includegraphics[width=15cm]{pyramid-sparsity.png}
 \caption{Sparsity structure of the stiffness matrix generated from the pyramid structure}
-\includegraphics[width=20cm]{pyramid-sparsity.png}
 \label{fig:pyramid-sparsity}
-\\
 \end{center}
 
 \end{figure}
 
 \section{Original code}\label{sec:originalCode}
-The original code reads in all of the parameter of the structure, and performs numerical method described above. At each iteration it generates the stiffness matrix (the Jacobian), and uses a linear solve that takes advantage of the sparsity pattern of the matrix. The matrix storage format is Skyline indexing (described below). The solver takes advantage of the regular access of the skyline indexing to perform a fast Cholesky-like factorization of the form $LDL^T$ (put source here and stuff). The original code is serial.
+The original code reads in all of the parameter of the structure, and performs numerical method described in section \ref{sec:method}. At each iteration generates a stiffness matrix (the Jacobian), and uses a linear solve that takes advantage of the sparsity pattern of the matrix. The matrix storage format is Skyline indexing (described below). The solver takes advantage of the regular access of the skyline indexing to perform a fast Cholesky-like factorization of the form $LDL^T$. In addition, the original code is running in serial.
 
 
 \subsection{Skyline}
-Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. Note that the term "Skyline" also refers to the set of first non-zero entries in each column of the matrix. A matrix in skyline format is three arrays: 
+Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. Note that the term "Skyline" also refers to the set of entries from first non-zero to the diagonal in each column. A matrix in skyline format is three arrays: 
 \begin{enumerate}
 
-\item value array: an array contains the values in the stiffness matrix between the first non-zero value of each column and the diagonal
+\item value array: an array contains the values in the stiffness matrix between the first non-zero entry of each column and the diagonal
 \item MAXA array: a  pointer array stores the index of the diagonal values in the SS array; the last element is the size of the value array +1 in case of the fortran-style indexing.
 \item KHT arrary: an array defines the number of entries from first non-zero value of each column to the diagonal of the stiffness matrix; the first element is default to 1. 
 \end{enumerate}
@@ -154,10 +145,9 @@ Skyline is a sparse indexing format widely used in finite element codes for stru
 \begin{figure}[h]
 \begin{center}
 
-\caption{Example of a matrix stored in skyline format}
 \includegraphics[width=8cm]{skyline}
-\label{fig:skyline}
-\\
+\label{fig:skyline}\\
+\caption{Example of a matrix stored in skyline format}
 The entries in orange are the values stored in skyline arrays
 \end{center}
 
@@ -166,16 +156,16 @@ The matrix above in skyline format would be:
 
 \begin{align}
 values&=[1, 5, 4, 0, 1, 7, 6, -5, 0, 6]\\
-MAXA&= [1, 2, 3, 6, 8, 12] \\
+MAXA&= [1, 2, 3, 6, 8, 11] \\
 KHT&=[1, 0, 2, 1, 2]
 \end{align}
 
- It takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. What makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
+ The skyline indexing takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. What makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
  
 Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large, and becomes itself  sparse.
 
-\section{New code}\label{sec:newCode}
-Our new code translates the skyline format into a Compressed Sparse Row (csr) format and then uses the MKL parallel sparse solver: pardiso. On the test case 
+\section{Optimized code}\label{sec:newCode}
+To optimize the original code, we translated the skyline format into a Compressed Sparse Row (csr) format and then used the MKL parallel sparse solver: Pardiso.
 
 \subsection{Compressed sparse row}
 
@@ -188,9 +178,10 @@ Compressed Sparse Row (CSR)format is the most common sparse indexing format in s
 Note that since pardiso a symmetric solver, we only need to solve the upper triangular part of the matrix
 \begin{figure}[H]
 \begin{center}
-\caption{Example of a matrix stored in CSR format}
+
 \includegraphics[width=8cm]{csr}
 \label{fig:csr}\\
+\caption{Example of a matrix stored in CSR format}
 The entries in orange are the entries saved in the symmetric CSR format
 \end{center}
 \end{figure}
@@ -205,37 +196,61 @@ rows&= [1,3,4,7,8,9]
 
 \subsection{Pardiso}
 \subsection{Timing comparisons}
-Below is a figure showing  the comparisons of running time between the original solver and the pardiso solver with standard settings on the chain structure. \\
+Below is a figure showing  the comparisons of running time between the original solver and the pardiso solver with standard settings on the truss structure. \\
 
-We observe that on the chain structure, both solver are very fast (about 1 second for a structure with 30.000 elements, but the original solver is slightly better. This is likely due to the fact that the original solver is very efficient on this system generated by the structure. Indeed as observed earlier the stiffness matrix in this case have a small but dense band, which is where the solver using the skyline format excels.
+We observe that on the truess structure, both solver are very fast (about 1 second for a structure with 30.000 elements, but the original solver is slightly better. This is likely due to the fact that the original solver is very efficient on this system generated by the structure. Indeed as observed earlier the stiffness matrix in this case have a small but dense band, which is where the solver using the skyline format excels.
 
 
 \begin{figure}[H]
 \begin{center}
 
-\caption{Comparison of running time on pyramid structures}
-\includegraphics[width=12cm]{chainplot}
+\includegraphics[width=10cm]{chainplot}
+\caption{Comparison of running time on chain structures}
 \label{fig:pyr_comp}
 \end{center}
 \end{figure}
 
 Below is a figure showing  the comparisons of running time between the original solver and the pardiso solver with standard settings on the pyramid structure. \\
 
-Contrary to the chain structure, on the pyramid structure the pardiso solver is much faster. This is likely due to the fact that the skyline format keeps a very high number of zeros, and therefore performs a lot of unnecessary arithmetic. Indeed, for the case where we have a 40.000, over $98\%$ of the entries saved by the skyline format are zeros.
+Contrary to the truss structure, the pardiso solver is much faster on the pyramid structure. This is likely due to the fact that the skyline format keeps a very high number of zeros, and therefore performs a lot of unnecessary arithmetic. Indeed, for the case where we have a 40.000, over $98\%$ of the entries saved by the skyline format are zeros.
 
 
 \begin{figure}[H]
 \begin{center}
 
+\includegraphics[width=10cm]{pyrplot}
 \caption{Comparison of running time on pyramid structures}
-\includegraphics[width=12cm]{pyrplot}
 \label{fig:pyr_comp}
 \end{center}
 \end{figure}
 
 
-
 \section{Scaling studies}\label{sec:scaling}
+The base case considered here is the original finite element code embedded with skyline indexing scheme and Cholesky factorization method. We are comparing the base case with a optimize case where the skyline indexing scheme was replaced by csr and the Cholesky factorization solve was replaced by Pardiso solver. We first measured the running time of the optimaized code by using a problem size of n = 39800 where n is the size of the stiffness matrix. For weak scaling shown in figure \ref{fig:weakplot}, we fixed the number of processor to 1 and consider the range of 1 to 12 threads.  For strong scaling shown in figure \ref{fig:strongplot}, we fixed the number of OpenMP thread to 1 and consider the range of processors from 1 to 12. We measured speedup as the ratio of the CPU time spent on solving the linear system of equation for the base case verse the CPU time spent on solving the linear system of equation for the optimatized case. The strong scaling of the speedup plot is shown in figure \ref{fig:speedupstrong}. \\
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=12cm]{weakplot}
+		\caption{Fixing number of processor = 1(?), and varying the number of OpenMP threads from 1 to 12 }
+			\label{fig:weakplot}
+	\end{center}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=12cm]{strongplot}
+		\caption{Fixing number of OpenMP thread = 1, and varying the number of processors from 1 to 12}
+		\label{fig:strongplot}
+	\end{center}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=12cm]{speedupstrong}
+		\caption{Speedup ratio vs. varying the number of OpenMP threads from 1 to 12 }
+		\label{fig:speedupstrong}
+	\end{center}
+\end{figure}
 
 \section{Conclusion}\label{sec:conclusion}
 
