@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 elements = 49999; %number of elements: elements should be odd for a truss bridge
+=======
+elements = 9999; %number of elements: elements should be odd for a truss bridge
+>>>>>>> c6185ead74214f3b142e5cd4740a5f490f57667f
 nodes=(elements+1)/2+1;  % number of nodes
 %nodes=3;
 filename = strcat(int2str(elements),'elementschain.txt');
