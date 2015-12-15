@@ -33,7 +33,7 @@
 
 The goal of this project was to compare the performance of two different sparse direct solvers. First, we took a look at our in-house quasi-static structural code, $3D\_geom\_nonlin\_truss.c$. The numerical implementation of the code is described in section \ref{sec:method}.  The $3D\_geom\_nonlin\_truss.c $ is a geometrically nonlinear finite element code embedded with the feature of analyzing truss structures using skyline indexing scheme and Cholesky-like factorization to solve a large system of equations. In section \ref{sec:setup}, we describe the two different input structures we used for the performance analysis.  A detailed description of the skyline indexing scheme is provided in section \ref{sec:originalCode}. \\
 
-The solver in which we compared our original code with is a MKL sparse direct solver: Pardiso. Pardiso has features of solving large symmetric and nonsymmetric linear systems of equaitons, $AX=B$, using parallel $LU$, $LDL^T$ or $LL^T$ factorization where $L$, $U$, and $D$ are the low triangle, upper triangle and the diagonal of matrix $A$ respectively. The solver employes parallel pivoting methods based on OpenMP directives, which result in the robust and memory-efficient performance. In section ~\ref{sec:newCode} we will describe how we translated the skyline indexing scheme in the original code into Compressed Sparse Row (csr) format in order to take advantage of the Pardiso solver.\\
+The solver in which we compared our original code with is a MKL sparse direct solver: Pardiso. Pardiso has features of solving large symmetric and nonsymmetric linear systems of equaitons, $AX=B$, using parallel $LU$, $LDL^T$ or $LL^T$ factorization where $L$, $U$, and $D$ are the low triangle, upper triangle and the diagonal of matrix $A$ respectively. The solver employes parallel pivoting methods based on OpenMP directives, which result in the robust and memory-efficient performance. In section ~\ref{sec:newCode} we will describe how we translated the skyline indexing scheme in the original code into Compressed Sparse Row (CSR) format in order to take advantage of the Pardiso solver.\\
 
 After we successfully hooked Pardiso into our original code, we conducted weak and strong scaling studies for both sparse direct methods. The results can be found in section \ref{sec:scaling}.  
 
@@ -73,7 +73,7 @@ Below is the timing results of the original code:
 \end{center}
 
 \subsection{Vectorizaiton}
-On top of introducing sparse direct solver to the original code, we thought of vectorizing the solve function to ensure that it was efficient enough. However, as shown in the vectorization report (figure \ref{fig:vectorization}), the solve function was already vectorize based on the report. As a result, we didn't have to do much on vectorization. 
+On top of introducing sparse direct solver to the original code, we looked into how efficient the vectorization of the solve function is. As shown in the vectorization report (see figure 1 \ref{fig:vectorization}), the solve function shows some vectorization, which increases the speedup of the main loop by a factor of 1.75. 
 
 \begin{figure}[h]
 	\begin{center}
@@ -160,16 +160,16 @@ MAXA&= [1, 2, 3, 6, 8, 11] \\
 KHT&=[1, 0, 2, 1, 2]
 \end{align}
 
- The skyline indexing takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. What makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
+ The skyline indexing takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. See \cite{Bathe} for details. One reason that makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
  
 Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large, and becomes itself  sparse.
 
 \section{Optimized code}\label{sec:newCode}
-To optimize the original code, we translated the skyline format into a Compressed Sparse Row (csr) format and then used the MKL parallel sparse solver: Pardiso.
+To optimize the original code, we translated the skyline format into a Compressed Sparse Row format and then used the MKL parallel sparse solver: Pardiso.
 
 \subsection{Compressed sparse row}
 
-Compressed Sparse Row (CSR)format is the most common sparse indexing format in scientific computing. A matrix in CSR format constitutes of three arrays:
+Compressed Sparse Row (CSR) format is the most common sparse indexing format in scientific computing. A matrix in CSR format constitutes of three arrays:
 \begin{enumerate}
 \item the value array which contains the non-zero elements of the matrix
 \item the column pointer array, where element i is the number of the column in A that contains the i-th value in the values array
@@ -195,8 +195,10 @@ rows&= [1,3,4,7,8,9]
 \end{align}
 
 \subsection{Pardiso}
+Pardiso is the sparse solver of the library MKL. It can solve many different types of sparse systems such as real or complex, symmytric, structurally symmertric or non-symmetric, definite or indefinite. See \cite{Intel} for details. In our case, the stiffness matrix is real symmetric positive definite. Pardiso has a wealth of different settings to change pivoting strategies, number of threads, number of iterative refinement steps, etc. In our case, pardiso performs a factorization of the form $LL^T$, uses the parallel version of the nested dissectin algorithm and takes 2 refinement steps. 
+
 \subsection{Timing comparisons}
-Below is a figure showing  the comparisons of running time between the original solver and the pardiso solver with standard settings on the truss structure. \\
+Figure \ref{fig:chaincomp} shows the comparisons of running time between the original solver and the pardiso solver using single thread  on the truss structure. \\
 
 We observe that on the truess structure, both solver are very fast (about 1 second for a structure with 30.000 elements, but the original solver is slightly better. This is likely due to the fact that the original solver is very efficient on this system generated by the structure. Indeed as observed earlier the stiffness matrix in this case have a small but dense band, which is where the solver using the skyline format excels.
 
@@ -205,12 +207,12 @@ We observe that on the truess structure, both solver are very fast (about 1 seco
 \begin{center}
 
 \includegraphics[width=10cm]{chainplot}
-\caption{Comparison of running time on chain structures}
-\label{fig:pyr_comp}
+\caption{Comparison of running time on truss structures}
+\label{fig:chaincomp}
 \end{center}
 \end{figure}
 
-Below is a figure showing  the comparisons of running time between the original solver and the pardiso solver with standard settings on the pyramid structure. \\
+Figure \ref{fig:pyr_comp} shows the comparisons of running time between the original solver and the pardiso solver using single thread on the pyramid structure. \\
 
 Contrary to the truss structure, the pardiso solver is much faster on the pyramid structure. This is likely due to the fact that the skyline format keeps a very high number of zeros, and therefore performs a lot of unnecessary arithmetic. Indeed, for the case where we have a 40.000, over $98\%$ of the entries saved by the skyline format are zeros.
 
@@ -226,19 +228,14 @@ Contrary to the truss structure, the pardiso solver is much faster on the pyrami
 
 
 \section{Scaling studies}\label{sec:scaling}
-The base case considered here is the original finite element code embedded with skyline indexing scheme and Cholesky factorization method. We are comparing the base case with a optimize case where the skyline indexing scheme was replaced by csr and the Cholesky factorization solve was replaced by Pardiso solver. We first measured the running time of the optimaized code by using a problem size of n = 39800 where n is the size of the stiffness matrix. For weak scaling shown in figure \ref{fig:weakplot}, we fixed the number of processor to 1 and consider the range of 1 to 12 threads.  For strong scaling shown in figure \ref{fig:strongplot}, we fixed the number of OpenMP thread to 1 and consider the range of processors from 1 to 12. We measured speedup as the ratio of the CPU time spent on solving the linear system of equation for the base case verse the CPU time spent on solving the linear system of equation for the optimatized case. The strong scaling of the speedup plot is shown in figure \ref{fig:speedupstrong}. \\
+The base case considered here is the original finite element code embedded with skyline indexing scheme and Cholesky factorization method. We are comparing the base case with a optimized case where the skyline indexing scheme was replaced by CSR and the Cholesky factorization solve was replaced by Pardiso solver. 
+
+\subsection{Strong scaling}
+We performed a strong scaling studying of the optimaized code on a pyramid structure containing 59700 elements (which corresponds to a base of 200 nodes). This gave us a problem size of n = 39800 where n is the size of the stiffness matrix. Figure \ref{fig:strongplot} shows a plot of running time against the number of threads used. We fixed the number of OpenMP thread to 1 and consider the range of processors from 1 to 12. Firgure \ref{fig:speedupstrong} shows the speedup against the number of threads used. We measured speedup as the ratio of the CPU time spent on solving the linear system of equation for the base case verse the CPU time spent on solving the linear system of equation for the optimatized case. We observe that the speed up is relatively small, approximately 1.5 when 5 threads were used and no additional speedup is attained by increasing the number of threads used. \\
 
 \begin{figure}[H]
 	\begin{center}
-		\includegraphics[width=12cm]{weakplot}
-		\caption{Fixing number of processor = 1(?), and varying the number of OpenMP threads from 1 to 12 }
-			\label{fig:weakplot}
-	\end{center}
-\end{figure}
-
-\begin{figure}[H]
-	\begin{center}
-		\includegraphics[width=12cm]{strongplot}
+		\includegraphics[width=11cm]{strongplot}
 		\caption{Fixing number of OpenMP thread = 1, and varying the number of processors from 1 to 12}
 		\label{fig:strongplot}
 	\end{center}
@@ -246,12 +243,33 @@ The base case considered here is the original finite element code embedded with 
 
 \begin{figure}[H]
 	\begin{center}
-		\includegraphics[width=12cm]{speedupstrong}
+		\includegraphics[width=11cm]{speedupstrong}
 		\caption{Speedup ratio vs. varying the number of OpenMP threads from 1 to 12 }
 		\label{fig:speedupstrong}
 	\end{center}
 \end{figure}
 
+\subsection{Weak scaling}
+We performed a weak scaling study for the optimized code on the pyramid structure. We fixed the number of processor to 1 and consider the range of 1 to 12 threads. On figure 8, we observed that the pardiso solver exhibits a linear growth in running time as the number of element increases, therefore we increase the number of threads linearly with the number of elements. Figure \ref{fig:weakplot} shows the result of the weak scaling study. We observe that the running time increases as the number of thread increases. This is expected as the strong scaling study revealed that the speedup on fixed size is not significant. These results suggests that using the right solver for the specific structure has a lot more impact on the running time than a solver than running in parallel.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=11cm]{weakplot}
+		\caption{Fixing number of processor = 1, and varying the number of OpenMP threads from 1 to 12 }
+		\label{fig:weakplot}
+	\end{center}
+\end{figure}
+
 \section{Conclusion}\label{sec:conclusion}
+We compared the performance of two direct solvers: a solver that's popular in the field of structural mechanics, and an all purpose sparse direct linear solver: pardiso. We found that their performance depended heavily on the structure used, and that pardiso scales much better for structures that give rise to stiffness matrix having large, sparse bands. We then performed a scaling studies on the code that uses the pardiso solver, and found that limited speed was achieved by increasing the number of threads used. 
+
+\section{Future Work}\label{sec:future}
+It would be interesting to try different structures and different solvers. In particular, if we had more time, we would compare these two solvers to an iterative solver. An interesting question would then be to determine if solving each Newton step approximately (i.e. taking only a small number of steps in the iterative linear solver), but performing more Newton step would lead to speedup. 
+
+\begin{thebibliography}{2}
+	\bibitem{Bathe} Bathe, K., Wilson, E. \emph{Numerical methods in finite elment analysis}. Englewood Cliffs, N.J.: Prentice-Hall., 1956.
+	\bibitem{Intel} Intel MKL PARDISO - Parallel Direct Sparse Solver Interface\\
+	 https:// software.intel.con/en-us/node/470282
+\end{thebibliography}
 
 \end{document}
