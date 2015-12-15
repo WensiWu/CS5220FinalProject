@@ -267,7 +267,7 @@ int main (void)
     }
    
     //pardisoinit(pt,&mtype, iparm);
-    mkl_set_num_threads(4); 
+    //mkl_set_num_threads(4); 
 
    // Pass control to prop function
     prop (&x[0][0], area, emod, eleng, c1, c2, c3, &minc[0][0]);
