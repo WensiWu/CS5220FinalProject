@@ -7,5 +7,6 @@
 
 module load cs5220
 cd $PBS_O_WORKDIR
+export OMP_NUM_THREADS=16
 
 ./pardiso_sky3.x

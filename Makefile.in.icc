@@ -32,7 +32,7 @@ LIBBLAS=-lopenblas
 INCBLAS=
 
 # # Libraries and include files for BLAS
-LIBMKL=-lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm
+LIBMKL=-lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lmkl_sequential -lpthread -lm
 INCMKL=
 
 
