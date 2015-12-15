@@ -38,11 +38,11 @@ The solver in which we compared our original code with is the MKL sparse solver:
 After we successfully hooked Pardiso into our original code, we conducted weak and strong scaling studies for both sparse direct methods. The results can be found in section \ref{sec:scaling}.  
 
 
-\section{Numerical Method}
+\section{Numerical Method}\label{sec:method}
 
 The truss computing problem can be written in the form
 $$F_l(u)=0$$
-where u is the displacement, and F is a system of $n$ non-linear equations, where n depends on the number of nodes, elements and degrees of freedom(?), and l is the maximum load factor.
+where u is the displacement, and F is a system of $n$ non-linear equations, where n depends on the number of nodes, degrees of freedom, and l is the maximum load factor.
 
 We solve this system of equation using a continuation method, starting at $l=0$, and incrementally increasing $l$ until it reaches the user specified maximum $l^{\star}$. 
 \\
@@ -54,7 +54,44 @@ $$S_l(u_t)*u_{t+1}=-F_l(u_t)$$.
 
 Most of the computation of this program is spent doing this linear solve. The stiffness matrix for large structures is very high dimensional and very sparse, a sparse solver is therefore needed.
 
-\section{Setup: generating input structures}
+\section{Initial Profile Result}\label{sec:profiling}
+
+\subsection{Timing}
+To identify the bottleneck of our original code, we ran the code with a test case, a pyramid made of 59700 nodes and 20100 elements, using amplxe. This case gave us a stiffness matrix size of 39800 * 39800. The CPU time spent in executing the orginal code is show in shown below. Majority of the computation time is spent on the linear solve section due to matrix size. Although the size of stiffness matrix is very large, we noticed that it is actually very sparse. Hence, implementing a sparse solver would be our primary approach to speed up the code. 
+
+Below is the timing results of the original code. 
+\begin{center}
+	\begin{tabular}{||c c c ||} 
+		\hline
+		Function & Description & CPU Time \\ [0.5ex] 
+		\hline\hline
+		solve & Sparse linear solve & 32.560s  \\ 
+		\hline
+		intel memset  & allocates memory & 0.273s  \\
+		\hline
+		printf fp & prints to file & 0.132s  \\
+		\hline
+		stiff & computes stiffness matrix & 0.104s  \\
+		\hline
+		forces & computes residual forces & 0.078s  \\[1ex] 
+		\hline
+	\end{tabular}
+\end{center}
+
+\subsection{Vectorizaiton}
+On top of introducing sparse direct solver to the original code, we thought of vectorizing the solve function to ensure that it was efficient enough. As shown in the vectorization report (see figure \ref{fig:vectorization}), the solve function was already vectorize based on the report. As a result, we didn't have to do much on vectorization. 
+
+\begin{figure}[h]
+	\begin{center}
+		
+		\caption{Vectorization report of the solve function}
+		\includegraphics[width=12cm]{vectorization}
+		\label{fig:vectorization}
+	\end{center}
+	
+\end{figure}
+
+\section{Setup: generating input structures}\label{sec:setup}
 
 As our objective is to speed up this computation and conduct scaling studies, we need to be able to generate input structures of variable sizes.
 We wrote two scripts that generate two different type of input structures, a "chain" structure (see figure ~\ref{fig:chain}) , and a "pyramid" structure (see figure ~\ref{fig:pyramid}) .
@@ -101,17 +138,17 @@ These two different structure give rise to significantly different running time 
 
 \end{figure}
 
-\section{Original code}
+\section{Original code}\label{sec:originalCode}
 The original code reads in all of the parameter of the structure, and performs numerical method described above. At each iteration it generates the stiffness matrix (the Jacobian), and uses a linear solve that takes advantage of the sparsity pattern of the matrix. The matrix storage format is Skyline indexing (described below). The solver takes advantage of the regular access of the skyline indexing to perform a fast Cholesky-like factorization of the form $LDL^T$ (put source here and stuff). The original code is serial.
 
 
 \subsection{Skyline}
-Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. A matrix in skyline format is two arrays: 
+Skyline is a sparse indexing format widely used in finite element codes for structural mechanics. A matrix in skyline format is three arrays: 
 \begin{enumerate}
 
-\item a value array which contains the values of the values between the "skyline" and the diagonal
-\item a  pointer array for which the ith elements points to the index in the entry in the value array which contains the first non zero element in column i, and the last element is the size of the value array (+1 in case of the fortran-style indexing).
-
+\item value array: an array contains the values in the stiffness matrix between the first non-zero value of each column and the diagonal
+\item MAXA array: a  pointer array stores the index of the diagonal values in the SS array; the last element is the size of the value array +1 in case of the fortran-style indexing.
+\item KHT arrary: an array defines the number of entries from first non-zero value of each column to the diagonal of the stiffness matrix; the first element is default to 1. 
 \end{enumerate}
 
 \begin{figure}[h]
@@ -121,61 +158,23 @@ Skyline is a sparse indexing format widely used in finite element codes for stru
 \includegraphics[width=8cm]{skyline}
 \label{fig:skyline}
 \\
-The blue slots are the skyline (stored), and the orange are the other elements stored in the skyline matrix format
+The entries in orange are the values stored in skyline arrays
 \end{center}
 
 \end{figure}
 The matrix above in skyline format would be:
 
 \begin{align}
-values&=[1,5,1,0,4,6,7,4,0,-5]\\
-pointers&= [1,2,3,6,8,11] 
+values&=[1, 5, 4, 0, 1, 7, 6, -5, 0, 6]\\
+MAXA&= [1, 2, 3, 6, 8, 12] \\
+KHT&=[1, 0, 2, 1, 2]
 \end{align}
-Note that this uses the fortran style 1-based indexing
 
- It takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. What makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".
+ It takes advantage of the fact that matrices that arise in this field are usually banded, symmetric positive definite matrices. Solving the system with such a matrix is usually (like in our code) by doing a sparse Cholesky-like decomposition. What makes the skyline indexing attractive is that the fill happening during the decomposition is only within the "skyline".\\
+ 
 Though the skyline format is usually very efficient for small systems, it is known that the format can be less than ideal in bigger systems, where the "band" of the matrix grows large, and becomes itself  sparse.
 
-
-\subsection{Timing of original code}
-
-Below is the relevant part of a result of a timing of the original code on the test case of pyramid with size of base 200 using amplxe.
-\begin{center}
- \begin{tabular}{||c c c ||} 
- \hline
- Function & Description & CPU Time \\ [0.5ex] 
- \hline\hline
- solve & Sparse linear solve & 32.560s  \\ 
- \hline
- intel memset  & allocates memory & 0.273s  \\
- \hline
- printf fp & prints to file & 0.132s  \\
- \hline
- stiff & computes stiffness matrix & 0.104s  \\
- \hline
-  forces & computes residual forces & 0.078s  \\[1ex] 
- \hline
-\end{tabular}
-\end{center}
-
-It is clear that most of the time is spent in the function solve, which performs the sparse linear solve, therefore we focused on using a more efficient sparse solver.
-
-
-\subsection{Vectorization of original code}
-On top of introducing sparse direct solver to the original code, we thought of vectorizing the solve function to ensure that it was efficient enough. As shown in the vectorization report (see figure \ref{fig:vectorization}), the solve function was already vectorize based on the report. As a result, we didn't have to do much on vectorization. 
-
-\begin{figure}[H]
-	\begin{center}
-		
-		\caption{Vectorization report of the solve function}
-		\includegraphics[width=12cm]{vectorization}
-		\label{fig:vectorization}
-	\end{center}
-	
-\end{figure}
-
-
-\section{New code}
+\section{New code}\label{sec:newCode}
 Our new code translates the skyline format into a Compressed Sparse Row (csr) format and then uses the MKL parallel sparse solver: pardiso. On the test case 
 
 \subsection{Compressed sparse row}
@@ -236,8 +235,8 @@ Contrary to the chain structure, on the pyramid structure the pardiso solver is 
 
 
 
-\section{Scaling studies}
+\section{Scaling studies}\label{sec:scaling}
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
 \end{document}
